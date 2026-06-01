@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gérer les biens - ImmoPromot</title>
+    <!-- Offizielles SDK importiert die globale Variable "window.supabase" -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="icon" type="image/x-icon" href="../img/favicon.ico">
     <style>
@@ -265,21 +266,24 @@
         const supabaseUrl = 'https://tcljsecaawgczfguujsi.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjbGpzZWNhYXdnY3pmZ3V1anNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMTAwMTgsImV4cCI6MjA4ODg4NjAxOH0.sO-iKn8hg1PKdAZnf1ez6dtASYH0PKId4Zx5OmGfHI8';
 
-        // Initialisierung korrigiert
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        // Variable umbenannt um "redeclaration" Error zu beheben
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         document.getElementById("logoutBtn").addEventListener("click", async () => {
-            await supabase.auth.signOut();
+            await supabaseClient.auth.signOut();
             window.location.replace("login.html");
         });
 
         async function load() {
             const listDiv = document.getElementById('list');
-            const { data, error } = await supabase.from('immoPromot').select('*').order('created_at', { ascending: false });
+            
+            // Abfrage auf "supabaseClient" und korrekte Tabelle "immoPromot" umgestellt
+            const { data, error } = await supabaseClient.from('immoPromot').select('*').order('created_at', { ascending: false });
 
             if (error) {
+                console.error("Supabase Error:", error);
                 if (error.message.includes("JWT")) window.location.replace("login.html");
-                listDiv.innerHTML = "Erreur de chargement.";
+                listDiv.innerHTML = "Erreur de chargement: " + error.message;
                 return;
             }
 
@@ -293,8 +297,8 @@
                 return `
                 <div class="item">
                     <div>
-                        <strong>${p.title}</strong><br>
-                        <small style="color: #888;">${p.ort} | ${p.preis} €</small><br>
+                        <strong>${p.title || 'Sans titre'}</strong><br>
+                        <small style="color: #888;">${p.ort || 'Lieu inconnu'} | ${p.preis || 0} €</small><br>
                         <span class="status-pill ${isSold ? 'status-verkauft' : 'status-aktiv'}">${isSold ? 'Vendu' : 'Actif'}</span>
                     </div>
                     <div class="actions">
@@ -311,7 +315,11 @@
 
         // --- EDIT LOGIK ---
         window.openEdit = async (id) => {
-            const { data, error } = await supabase.from('immoPromot').select('*').eq('id', id).single();
+            const { data, error } = await supabaseClient.from('immoPromot').select('*').eq('id', id).single();
+            if (error) {
+                alert("Erreur de chargement du bien: " + error.message);
+                return;
+            }
             if (data) {
                 document.getElementById('edit-id').value = data.id;
                 document.getElementById('edit-title').value = data.title || '';
@@ -346,7 +354,7 @@
                 beschreibung_en: document.getElementById('edit-desc-en').value || null
             };
 
-            const { error } = await supabase.from('immoPromot').update(updates).eq('id', id);
+            const { error } = await supabaseClient.from('immoPromot').update(updates).eq('id', id);
 
             if (error) {
                 alert("Erreur lors de la sauvegarde: " + error.message);
@@ -357,18 +365,29 @@
         };
 
         window.updateStatus = async (id, newStatus) => {
-            await supabase.from('immoPromot').update({ status: newStatus }).eq('id', id);
-            load();
-        };
-
-        window.deleteItem = async (id) => {
-            if (confirm('Voulez-vous vraiment supprimer ce bien ?')) {
-                await supabase.from('immoPromot').delete().eq('id', id);
+            const { error } = await supabaseClient.from('immoPromot').update({ status: newStatus }).eq('id', id);
+            if (error) {
+                alert("Erreur lors du changement de statut: " + error.message);
+            } else {
                 load();
             }
         };
 
-        load();
+        window.deleteItem = async (id) => {
+            if (confirm('Voulez-vous vraiment supprimer ce bien ?')) {
+                const { error } = await supabaseClient.from('immoPromot').delete().eq('id', id);
+                if (error) {
+                    alert("Erreur lors de la suppression: " + error.message);
+                } else {
+                    load();
+                }
+            }
+        };
+
+        // Skript startet erst, wenn das HTML vollständig geladen ist
+        document.addEventListener("DOMContentLoaded", () => {
+            load();
+        });
     </script>
 </body>
 
