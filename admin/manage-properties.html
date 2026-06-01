@@ -88,6 +88,12 @@
             gap: 15px;
         }
 
+        .lang-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
         .item {
             padding: 20px;
             border-bottom: 1px solid #eee;
@@ -209,13 +215,24 @@
 
                 <div class="form-group">
                     <label>Description (Français)</label>
-                    <textarea id="add-desc" rows="3" placeholder="Détails du bien..."></textarea>
+                    <textarea id="add-desc" rows="3" placeholder="Détails du bien en Français..."></textarea>
+                </div>
+
+                <div class="lang-grid">
+                    <div class="form-group">
+                        <label>Description (Deutsch)</label>
+                        <textarea id="add-desc-de" rows="3" placeholder="Beschreibung auf Deutsch..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Description (English)</label>
+                        <textarea id="add-desc-en" rows="3" placeholder="Description in English..."></textarea>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label>Photos du bien</label>
                     <input type="file" id="add-images" accept="image/*" multiple>
-                    <small style="color: #888;">Sélectionnez une ou plusieurs photos pour cette annonce.</small>
+                    <small style="color: #888;">Sélectionnez eine oder mehrere Fotos für diese Anzeige.</small>
                 </div>
 
                 <button type="submit" class="btn-add" id="submitBtn">Créer l'annonce</button>
@@ -254,8 +271,19 @@
                 </div>
             </div>
 
-            <label>Description (FR)</label>
+            <label>Description (Français)</label>
             <textarea id="edit-desc" rows="3"></textarea>
+
+            <div class="lang-grid">
+                <div>
+                    <label>Description (Deutsch)</label>
+                    <textarea id="edit-edit-desc-de" rows="3"></textarea>
+                </div>
+                <div>
+                    <label>Description (English)</label>
+                    <textarea id="edit-edit-desc-en" rows="3"></textarea>
+                </div>
+            </div>
 
             <div class="modal-actions">
                 <button class="btn-cancel" onclick="closeModal()">Annuler</button>
@@ -268,7 +296,6 @@
         const supabaseUrl = 'https://tcljsecaawgczfguujsi.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjbGpzZWNhYXdnY3pmZ3V1anNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMTAwMTgsImV4cCI6MjA4ODg4NjAxOH0.sO-iKn8hg1PKdAZnf1ez6dtASYH0PKId4Zx5OmGfHI8';
 
-        // Initialisierung des Clients
         const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         document.getElementById("logoutBtn").addEventListener("click", async () => {
@@ -276,7 +303,7 @@
             window.location.replace("login.html");
         });
 
-        // IMMOBILIE SPEICHERN & BILD HOCHLADEN
+        // SPEICHERN & UPLOAD LOGIK
         document.getElementById("addPropertyForm").addEventListener("submit", async (e) => {
             e.preventDefault();
             const submitBtn = document.getElementById("submitBtn");
@@ -287,20 +314,17 @@
             const files = fileInput.files;
             let imageUrls = [];
 
-            // Läuft durch alle ausgewählten Bilder und lädt sie hoch
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 const fileExt = file.name.split('.').pop();
                 const fileName = `${Date.now()}_${i}.${fileExt}`;
                 const filePath = `${fileName}`;
 
-                // Nutzt exakt deinen Bucket 'immobilien-bilder'
                 const { data: uploadData, error: uploadError } = await supabaseClient.storage
                     .from('immobilien-bilder')
                     .upload(filePath, file);
 
                 if (!uploadError) {
-                    // Generiert die öffentliche URL zum Bild
                     const { data: urlData } = supabaseClient.storage
                         .from('immobilien-bilder')
                         .getPublicUrl(filePath);
@@ -311,15 +335,16 @@
                 }
             }
 
-            // Neues Objekt für die PostgreSQL-Datenbank
             const newProperty = {
                 title: document.getElementById("add-title").value,
                 type: document.getElementById("add-type").value,
                 preis: Number(document.getElementById("add-preis").value),
                 ort: document.getElementById("add-ort").value,
                 beschreibung: document.getElementById("add-desc").value,
+                beschreibung_de: document.getElementById("add-desc-de").value || null,
+                beschreibung_en: document.getElementById("add-desc-en").value || null,
                 status: 'aktiv',
-                bilder: imageUrls // Speichert die URLs im Text-Array der Spalte 'bilder'
+                bilder: imageUrls
             };
 
             const { error } = await supabaseClient.from('immoPromot').insert([newProperty]);
@@ -339,8 +364,6 @@
         // LADEN UND ANZEIGEN DER IMMOBILIEN
         async function load() {
             const listDiv = document.getElementById('list');
-            
-            // Korrigiert von 'supabase.from' zu 'supabaseClient.from'
             const { data, error } = await supabaseClient.from('immoPromot').select('*').order('created_at', { ascending: false });
 
             if (error) {
@@ -355,7 +378,6 @@
 
             listDiv.innerHTML = data.map(p => {
                 const isSold = p.status === 'verkauft';
-                // Nutzt das erste hochgeladene Bild, andernfalls ein Platzhalterbild
                 const firstImg = (p.bilder && p.bilder.length > 0) ? p.bilder[0] : '../img/placeholder.jpg';
 
                 return `
@@ -380,7 +402,7 @@
             }).join('');
         }
 
-        // EDITIER-LOGIK (MODAL ÖFFNEN)
+        // EDITIER-LOGIK
         window.openEdit = async (id) => {
             const { data, error } = await supabaseClient.from('immoPromot').select('*').eq('id', id).single();
             if (data) {
@@ -390,13 +412,14 @@
                 document.getElementById('edit-preis').value = data.preis || '';
                 document.getElementById('edit-ort').value = data.ort || '';
                 document.getElementById('edit-desc').value = data.beschreibung || '';
+                document.getElementById('edit-edit-desc-de').value = data.beschreibung_de || '';
+                document.getElementById('edit-edit-desc-en').value = data.beschreibung_en || '';
                 document.getElementById('editModal').style.display = 'block';
             }
         };
 
         window.closeModal = () => { document.getElementById('editModal').style.display = 'none'; };
 
-        // ÄNDERUNGEN SPEICHERN
         window.saveEdit = async () => {
             const id = document.getElementById('edit-id').value;
             const updates = {
@@ -404,20 +427,20 @@
                 type: document.getElementById('edit-type').value,
                 preis: Number(document.getElementById('edit-preis').value),
                 ort: document.getElementById('edit-ort').value,
-                beschreibung: document.getElementById('edit-desc').value
+                beschreibung: document.getElementById('edit-desc').value,
+                beschreibung_de: document.getElementById('edit-edit-desc-de').value,
+                beschreibung_en: document.getElementById('edit-edit-desc-en').value
             };
 
             const { error } = await supabaseClient.from('immoPromot').update(updates).eq('id', id);
-            if (error) { alert("Erreur: " + error.message); } else { closeModal(); load(); }
+            if (error) { alert("Erreur lors de la sauvegarde: " + error.message); } else { closeModal(); load(); }
         };
 
-        // STATUS ÄNDERN (Z.B. ALS VERKAUFT MARKIEREN)
         window.updateStatus = async (id, newStatus) => {
             await supabaseClient.from('immoPromot').update({ status: newStatus }).eq('id', id);
             load();
         };
 
-        // LÖSCH-FUNKTION
         window.deleteItem = async (id) => {
             if (confirm('Voulez-vous vraiment supprimer ce bien ?')) {
                 await supabaseClient.from('immoPromot').delete().eq('id', id);
