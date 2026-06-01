@@ -4,17 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ajouter un Bien - ImmoPromot Admin</title>
+    <title>Gérer les biens - ImmoPromot</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="icon" type="image/x-icon" href="../img/favicon.ico">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
 
         body {
-            font-family: "Poppins", sans-serif;
-            background: #f8f9fa;
+            font-family: 'Poppins', sans-serif;
             margin: 0;
+            background: #f8f9fa;
             color: #333;
-            visibility: hidden; /* Wird per JS nach dem Auth-Check auf visible gesetzt */
         }
 
         header {
@@ -26,83 +26,172 @@
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
         }
 
+        header h2 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: #c62828;
+        }
+
         .container {
             padding: 40px 8%;
             max-width: 900px;
             margin: auto;
         }
 
-        form {
+        .back-link {
+            display: inline-block;
+            margin-bottom: 25px;
+            text-decoration: none;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .list-container {
             background: white;
-            padding: 40px;
+            padding: 20px;
             border-radius: 12px;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-            display: flex;
-            flex-direction: column;
         }
 
-        h3 {
-            margin: 20px 0 10px 0;
-            color: #c62828;
-            font-size: 1.1rem;
+        .item {
+            padding: 20px;
             border-bottom: 1px solid #eee;
-            padding-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        input,
-        select,
-        textarea {
-            margin-bottom: 15px;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-
-        .btn-submit {
-            padding: 15px;
-            background: #c62828;
-            color: white;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
+        .status-pill {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 11px;
             font-weight: 600;
-            margin-top: 20px;
+            text-transform: uppercase;
+            margin-top: 5px;
         }
 
-        .btn-submit:disabled {
-            background: #ccc;
+        .status-aktiv {
+            background: #e8f5e9;
+            color: #2e7d32;
         }
 
-        .logout {
+        .status-verkauft {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 8px;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .btn-edit {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .btn-status {
+            background: #f0f0f0;
+            color: #444;
+        }
+
+        .btn-del {
+            background: #fff0f0;
+            color: #d32f2f;
+        }
+
+        .logout-btn {
             background: #f44336;
             color: white;
-            border: none;
-            padding: 8px 18px;
             border-radius: 20px;
-            cursor: pointer;
         }
 
-        #preview {
+        /* MODAL STYLES */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 2% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 700px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+            color: #c62828;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .modal-content input,
+        .modal-content textarea,
+        .modal-content select {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        .lang-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .modal-actions {
             display: flex;
             gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
+            margin-top: 30px;
         }
 
-        #preview img {
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-            border-radius: 8px;
+        .btn-save {
+            background: #c62828;
+            color: white;
+            flex: 2;
+            font-size: 1rem;
         }
 
-        #msg {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            display: none;
+        .btn-cancel {
+            background: #eee;
+            color: #333;
+            flex: 1;
         }
     </style>
 </head>
@@ -110,141 +199,176 @@
 <body>
 
     <header>
-        <div style="padding: 10px;">
-            <a href="dashboard.html" style="text-decoration: none; color: #c62828; font-weight: 600;">
-                &larr; Tableau de Bord
-            </a>
-        </div>
-        <h2>Admin Panel</h2>
-        <button id="logoutBtn" class="logout">Déconnexion</button>
+        <h2>ImmoPromot Admin</h2>
+        <button class="logout-btn" id="logoutBtn">Déconnexion</button>
     </header>
 
     <div class="container">
-        <form id="addPropertyForm">
-            <h1>Ajouter un nouveau bien</h1>
+        <a href="dashboard.html" class="back-link">← Retour au Dashboard</a>
+        <div class="list-container">
+            <h3>Inventaire des biens</h3>
+            <div id="list">Chargement des biens...</div>
+        </div>
+    </div>
 
-            <h3>Titres</h3>
-            <input type="text" id="title" placeholder="Nom de la propriété (ex: Maison de campagne)" required />
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h3>Modifier le bien</h3>
+            <input type="hidden" id="edit-id">
 
-            <h3>Infos Générales</h3>
-            <select id="type" required>
-                <option value="">Sélectionnez un type</option>
-                <option value="Haus">Maison (Haus)</option>
-                <option value="Wohnung">Appartement (Wohnung)</option>
-            </select>
-            <input type="number" id="preis" placeholder="Prix (€)" required />
-            <input type="text" id="ort" placeholder="Lieu / Code Postal" required />
+            <label>Titres (FR / DE / EN)</label>
+            <input type="text" id="edit-title" placeholder="Titre en Français">
+            <div class="lang-grid">
+                <input type="text" id="edit-title-de" placeholder="Titel auf Deutsch">
+                <input type="text" id="edit-title-en" placeholder="Title in English">
+            </div>
 
-            <h3>Description</h3>
-            <textarea id="beschreibung" placeholder="Description du bien..." rows="6" required></textarea>
+            <div class="lang-grid">
+                <div>
+                    <label>Type</label>
+                    <select id="edit-type">
+                        <option value="acheter">Acheter (Vente)</option>
+                        <option value="louer">Louer (Location)</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Prix (€)</label>
+                    <input type="number" id="edit-preis">
+                </div>
+            </div>
 
-            <h3>Médias</h3>
-            <input type="file" id="bilder" multiple accept="image/*" />
-            <div id="preview"></div>
+            <label>Lieu / Code Postal</label>
+            <input type="text" id="edit-ort">
 
-            <button type="submit" id="submitBtn" class="btn-submit">Enregistrer le bien</button>
-            <div id="msg"></div>
-        </form>
+            <label>Description (Français)</label>
+            <textarea id="edit-desc" rows="3"></textarea>
+
+            <div class="lang-grid">
+                <div>
+                    <label>Description (Deutsch)</label>
+                    <textarea id="edit-desc-de" rows="3"></textarea>
+                </div>
+                <div>
+                    <label>Description (English)</label>
+                    <textarea id="edit-desc-en" rows="3"></textarea>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal()">Annuler</button>
+                <button class="btn-save" onclick="saveEdit()">Enregistrer les modifications</button>
+            </div>
+        </div>
     </div>
 
     <script>
         const supabaseUrl = 'https://tcljsecaawgczfguujsi.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjbGpzZWNhYXdnY3pmZ3V1anNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMTAwMTgsImV4cCI6MjA4ODg4NjAxOH0.sO-iKn8hg1PKdAZnf1ez6dtASYH0PKId4Zx5OmGfHI8';
 
-        // LÖSUNG: Variable zu supabaseClient umbenannt
-        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+        // Initialisierung korrigiert
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        // Prüft die Session
-        async function checkAuth() {
-            try {
-                const { data: { session }, error } = await supabaseClient.auth.getSession();
-                if (error || !session) {
-                    window.location.replace("login.html");
-                } else {
-                    document.body.style.visibility = "visible";
-                }
-            } catch (e) {
-                console.error("Auth Check Error:", e);
-                window.location.replace("login.html");
-            }
-        }
-        document.addEventListener('DOMContentLoaded', checkAuth);
-
-        // Logout
         document.getElementById("logoutBtn").addEventListener("click", async () => {
-            await supabaseClient.auth.signOut();
-            localStorage.removeItem('supabase.auth.token');
+            await supabase.auth.signOut();
             window.location.replace("login.html");
         });
 
-        // Bildvorschau
-        document.getElementById("bilder").addEventListener("change", (e) => {
-            const preview = document.getElementById("preview");
-            preview.innerHTML = "";
-            Array.from(e.target.files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    const img = document.createElement("img");
-                    img.src = ev.target.result;
-                    preview.appendChild(img);
-                };
-                reader.readAsDataURL(file);
-            });
-        });
+        async function load() {
+            const listDiv = document.getElementById('list');
+            const { data, error } = await supabase.from('immoPromot').select('*').order('created_at', { ascending: false });
 
-        // Formular absenden
-        document.getElementById("addPropertyForm").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById("submitBtn");
-            const msg = document.getElementById("msg");
-
-            btn.disabled = true;
-            msg.style.display = "block";
-            msg.style.background = "#e3f2fd";
-            msg.style.color = "#1976d2";
-            msg.innerText = "⏳ Enregistrement en cours...";
-
-            try {
-                const files = document.getElementById("bilder").files;
-                const urls = [];
-
-                // Bilder-Upload
-                for (let file of files) {
-                    const name = `immo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-                    const { error: err } = await supabaseClient.storage.from('immobilien-bilder').upload(name, file);
-                    if (err) throw err;
-                    
-                    const { data } = supabaseClient.storage.from('immobilien-bilder').getPublicUrl(name);
-                    urls.push(data.publicUrl);
-                }
-
-                // In Datenbank speichern
-                const { error: dbErr } = await supabaseClient.from('immoPromot').insert([{
-                    title: document.getElementById("title").value,
-                    type: document.getElementById("type").value,
-                    preis: Number(document.getElementById("preis").value),
-                    ort: document.getElementById("ort").value,
-                    beschreibung: document.getElementById("beschreibung").value,
-                    status: 'Aktiv',
-                    bilder: urls
-                }]);
-
-                if (dbErr) throw dbErr;
-
-                msg.style.background = "#e8f5e9";
-                msg.style.color = "#2e7d32";
-                msg.innerText = "✅ Succès ! Le bien a été ajouté.";
-                document.getElementById("addPropertyForm").reset();
-                document.getElementById("preview").innerHTML = "";
-            } catch (err) {
-                console.error(err);
-                msg.style.background = "#ffebee";
-                msg.style.color = "#c62828";
-                msg.innerText = "❌ Erreur : " + err.message;
-            } finally {
-                btn.disabled = false;
+            if (error) {
+                if (error.message.includes("JWT")) window.location.replace("login.html");
+                listDiv.innerHTML = "Erreur de chargement.";
+                return;
             }
-        });
+
+            if (!data || data.length === 0) {
+                listDiv.innerHTML = "Aucun bien trouvé.";
+                return;
+            }
+
+            listDiv.innerHTML = data.map(p => {
+                const isSold = p.status === 'verkauft';
+                return `
+                <div class="item">
+                    <div>
+                        <strong>${p.title}</strong><br>
+                        <small style="color: #888;">${p.ort} | ${p.preis} €</small><br>
+                        <span class="status-pill ${isSold ? 'status-verkauft' : 'status-aktiv'}">${isSold ? 'Vendu' : 'Actif'}</span>
+                    </div>
+                    <div class="actions">
+                        <button class="btn-edit" onclick="openEdit('${p.id}')">Modifier</button>
+                        <button class="btn-status" onclick="updateStatus('${p.id}', '${isSold ? 'aktiv' : 'verkauft'}')">
+                            ${isSold ? 'Réactiver' : 'Vendu'}
+                        </button>
+                        <button class="btn-del" onclick="deleteItem('${p.id}')">Supprimer</button>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        // --- EDIT LOGIK ---
+        window.openEdit = async (id) => {
+            const { data, error } = await supabase.from('immoPromot').select('*').eq('id', id).single();
+            if (data) {
+                document.getElementById('edit-id').value = data.id;
+                document.getElementById('edit-title').value = data.title || '';
+                document.getElementById('edit-title-de').value = data.title_de || '';
+                document.getElementById('edit-title-en').value = data.title_en || '';
+                document.getElementById('edit-type').value = data.type || 'acheter';
+                document.getElementById('edit-preis').value = data.preis || '';
+                document.getElementById('edit-ort').value = data.ort || '';
+                document.getElementById('edit-desc').value = data.beschreibung || '';
+                document.getElementById('edit-desc-de').value = data.beschreibung_de || '';
+                document.getElementById('edit-desc-en').value = data.beschreibung_en || '';
+
+                document.getElementById('editModal').style.display = 'block';
+            }
+        };
+
+        window.closeModal = () => {
+            document.getElementById('editModal').style.display = 'none';
+        };
+
+        window.saveEdit = async () => {
+            const id = document.getElementById('edit-id').value;
+            const updates = {
+                title: document.getElementById('edit-title').value,
+                title_de: document.getElementById('edit-title-de').value || null,
+                title_en: document.getElementById('edit-title-en').value || null,
+                type: document.getElementById('edit-type').value,
+                preis: Number(document.getElementById('edit-preis').value),
+                ort: document.getElementById('edit-ort').value,
+                beschreibung: document.getElementById('edit-desc').value,
+                beschreibung_de: document.getElementById('edit-desc-de').value || null,
+                beschreibung_en: document.getElementById('edit-desc-en').value || null
+            };
+
+            const { error } = await supabase.from('immoPromot').update(updates).eq('id', id);
+
+            if (error) {
+                alert("Erreur lors de la sauvegarde: " + error.message);
+            } else {
+                closeModal();
+                load();
+            }
+        };
+
+        window.updateStatus = async (id, newStatus) => {
+            await supabase.from('immoPromot').update({ status: newStatus }).eq('id', id);
+            load();
+        };
+
+        window.deleteItem = async (id) => {
+            if (confirm('Voulez-vous vraiment supprimer ce bien ?')) {
+                await supabase.from('immoPromot').delete().eq('id', id);
+                load();
+            }
+        };
+
+        load();
     </script>
 </body>
 
