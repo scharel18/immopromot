@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gérer les biens - ImmoPromot</title>
-    <!-- Offizielles SDK importiert die globale Variable "window.supabase" -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="icon" type="image/x-icon" href="../img/favicon.ico">
     <style>
@@ -266,7 +265,7 @@
         const supabaseUrl = 'https://tcljsecaawgczfguujsi.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjbGpzZWNhYXdnY3pmZ3V1anNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMTAwMTgsImV4cCI6MjA4ODg4NjAxOH0.sO-iKn8hg1PKdAZnf1ez6dtASYH0PKId4Zx5OmGfHI8';
 
-        // Variable umbenannt um "redeclaration" Error zu beheben
+        // Initialisierung über den globalen Namensraum abgesichert
         const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         document.getElementById("logoutBtn").addEventListener("click", async () => {
@@ -274,15 +273,22 @@
             window.location.replace("login.html");
         });
 
+        async function checkUser() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) {
+                window.location.replace("login.html");
+            } else {
+                load();
+            }
+        }
+
         async function load() {
             const listDiv = document.getElementById('list');
             
-            // Abfrage auf "supabaseClient" und korrekte Tabelle "immoPromot" umgestellt
             const { data, error } = await supabaseClient.from('immoPromot').select('*').order('created_at', { ascending: false });
 
             if (error) {
                 console.error("Supabase Error:", error);
-                if (error.message.includes("JWT")) window.location.replace("login.html");
                 listDiv.innerHTML = "Erreur de chargement: " + error.message;
                 return;
             }
@@ -384,9 +390,9 @@
             }
         };
 
-        // Skript startet erst, wenn das HTML vollständig geladen ist
+        // Erst den User validieren, danach die Daten laden
         document.addEventListener("DOMContentLoaded", () => {
-            load();
+            checkUser();
         });
     </script>
 </body>
