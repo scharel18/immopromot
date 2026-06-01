@@ -46,11 +46,53 @@
             font-size: 0.9rem;
         }
 
-        .list-container {
+        .form-container, .list-container {
             background: white;
-            padding: 20px;
+            padding: 25px;
             border-radius: 12px;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        h3 {
+            margin-top: 0;
+            color: #c62828;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        .lang-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
         }
 
         .item {
@@ -59,6 +101,20 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+
+        .item-preview {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .prop-thumb {
+            width: 70px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 6px;
+            background: #eee;
         }
 
         .status-pill {
@@ -88,14 +144,22 @@
         }
 
         button {
-            padding: 8px 12px;
+            padding: 10px 15px;
             cursor: pointer;
             border-radius: 8px;
             border: none;
             font-family: 'Poppins', sans-serif;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 500;
             transition: 0.3s;
+        }
+
+        .btn-add {
+            background: #c62828;
+            color: white;
+            width: 100%;
+            font-size: 1rem;
+            margin-top: 15px;
         }
 
         .btn-edit {
@@ -149,32 +213,6 @@
             padding-bottom: 10px;
         }
 
-        label {
-            display: block;
-            margin-top: 15px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: #666;
-        }
-
-        .modal-content input,
-        .modal-content textarea,
-        .modal-content select {
-            width: 100%;
-            padding: 12px;
-            margin: 5px 0 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-family: inherit;
-        }
-
-        .lang-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
         .modal-actions {
             display: flex;
             gap: 10px;
@@ -205,6 +243,57 @@
 
     <div class="container">
         <a href="dashboard.html" class="back-link">← Retour au Dashboard</a>
+
+        <div class="form-container">
+            <h3>Ajouter un nouveau bien</h3>
+            <form id="addPropertyForm">
+                <label>Titres (FR * / DE / EN)</label>
+                <input type="text" id="add-title" required placeholder="Titre en Français (Obligatoire)">
+                <div class="lang-grid">
+                    <input type="text" id="add-title-de" placeholder="Titel auf Deutsch">
+                    <input type="text" id="add-title-en" placeholder="Title in English">
+                </div>
+
+                <div class="grid-3">
+                    <div>
+                        <label>Type *</label>
+                        <select id="add-type">
+                            <option value="acheter">Acheter (Vente)</option>
+                            <option value="louer">Louer (Location)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Prix (€) *</label>
+                        <input type="number" id="add-preis" required placeholder="Format: 450000">
+                    </div>
+                    <div>
+                        <label>Lieu / Code Postal *</label>
+                        <input type="text" id="add-ort" required placeholder="Ex: Luxembourg (1234)">
+                    </div>
+                </div>
+
+                <label>Description (Français)</label>
+                <textarea id="add-desc" rows="3" placeholder="Description en Français..."></textarea>
+
+                <div class="lang-grid">
+                    <div>
+                        <label>Description (Deutsch)</label>
+                        <textarea id="add-desc-de" rows="3" placeholder="Beschreibung auf Deutsch..."></textarea>
+                    </div>
+                    <div>
+                        <label>Description (English)</label>
+                        <textarea id="add-desc-en" rows="3" placeholder="Description in English..."></textarea>
+                    </div>
+                </div>
+
+                <label>Photos du bien</label>
+                <input type="file" id="add-images" accept="image/*" multiple>
+                <small style="color: #888;">Vous pouvez sélectionner plusieurs images en même temps.</small>
+
+                <button type="submit" class="btn-add" id="submitBtn">Créer l'annonce</button>
+            </form>
+        </div>
+
         <div class="list-container">
             <h3>Inventaire des biens</h3>
             <div id="list">Chargement des biens...</div>
@@ -265,7 +354,6 @@
         const supabaseUrl = 'https://tcljsecaawgczfguujsi.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjbGpzZWNhYXdnY3pmZ3V1anNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMTAwMTgsImV4cCI6MjA4ODg4NjAxOH0.sO-iKn8hg1PKdAZnf1ez6dtASYH0PKId4Zx5OmGfHI8';
 
-        // Initialisierung über den globalen Namensraum abgesichert
         const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         document.getElementById("logoutBtn").addEventListener("click", async () => {
@@ -282,6 +370,69 @@
             }
         }
 
+        // SPEICHER- UND UPLOAD LOGIK FÜR NEUE ANZEIGEN
+        document.getElementById("addPropertyForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById("submitBtn");
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Téléchargement des images...";
+
+            const fileInput = document.getElementById("add-images");
+            const files = fileInput.files;
+            let imageUrls = [];
+
+            // 1. Schleife für den Storage Upload in deinen Bucket 'immobilien-bilder'
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}_${i}.${fileExt}`;
+                const filePath = `${fileName}`;
+
+                const { data: uploadData, error: uploadError } = await supabaseClient.storage
+                    .from('immobilien-bilder')
+                    .upload(filePath, file);
+
+                if (!uploadError) {
+                    const { data: urlData } = supabaseClient.storage
+                        .from('immobilien-bilder')
+                        .getPublicUrl(filePath);
+                    
+                    imageUrls.push(urlData.publicUrl);
+                } else {
+                    console.error("Upload Error:", uploadError.message);
+                }
+            }
+
+            // 2. Erstellung des Datensatzes für die Tabelle
+            const newProperty = {
+                title: document.getElementById("add-title").value,
+                title_de: document.getElementById("add-title-de").value || null,
+                title_en: document.getElementById("add-title-en").value || null,
+                type: document.getElementById("add-type").value,
+                preis: Number(document.getElementById("add-preis").value),
+                ort: document.getElementById("add-ort").value,
+                beschreibung: document.getElementById("add-desc").value,
+                beschreibung_de: document.getElementById("add-desc-de").value || null,
+                beschreibung_en: document.getElementById("add-desc-en").value || null,
+                status: 'aktiv',
+                bilder: imageUrls // Übergibt das Array an generierten Bild-URLs
+            };
+
+            const { error } = await supabaseClient.from('immoPromot').insert([newProperty]);
+
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Créer l'annonce";
+
+            if (error) {
+                alert("Erreur lors de la création: " + error.message);
+            } else {
+                alert("Bien ajouté avec succès !");
+                document.getElementById("addPropertyForm").reset();
+                load();
+            }
+        });
+
+        // LADEN UND ANZEIGEN DER DATEN
         async function load() {
             const listDiv = document.getElementById('list');
             
@@ -300,12 +451,18 @@
 
             listDiv.innerHTML = data.map(p => {
                 const isSold = p.status === 'verkauft';
+                // Holt das erste Bild aus dem Array 'bilder' oder nutzt einen grauen Platzhalter
+                const firstImg = (p.bilder && p.bilder.length > 0) ? p.bilder[0] : '../img/placeholder.jpg';
+
                 return `
                 <div class="item">
-                    <div>
-                        <strong>${p.title || 'Sans titre'}</strong><br>
-                        <small style="color: #888;">${p.ort || 'Lieu inconnu'} | ${p.preis || 0} €</small><br>
-                        <span class="status-pill ${isSold ? 'status-verkauft' : 'status-aktiv'}">${isSold ? 'Vendu' : 'Actif'}</span>
+                    <div class="item-preview">
+                        <img src="${firstImg}" class="prop-thumb" alt="Preview" onerror="this.src='../img/placeholder.jpg'">
+                        <div>
+                            <strong>${p.title || 'Sans titre'}</strong><br>
+                            <small style="color: #888;">${p.ort || 'Lieu inconnu'} | ${p.preis || 0} €</small><br>
+                            <span class="status-pill ${isSold ? 'status-verkauft' : 'status-aktiv'}">${isSold ? 'Vendu' : 'Actif'}</span>
+                        </div>
                     </div>
                     <div class="actions">
                         <button class="btn-edit" onclick="openEdit('${p.id}')">Modifier</button>
@@ -390,7 +547,6 @@
             }
         };
 
-        // Erst den User validieren, danach die Daten laden
         document.addEventListener("DOMContentLoaded", () => {
             checkUser();
         });
