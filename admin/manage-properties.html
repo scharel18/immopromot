@@ -96,6 +96,20 @@
             align-items: center;
         }
 
+        .item-preview {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .prop-thumb {
+            width: 70px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 6px;
+            background: #eee;
+        }
+
         .status-pill {
             display: inline-block;
             padding: 3px 10px;
@@ -168,7 +182,7 @@
         <a href="dashboard.html" class="back-link">← Retour au Dashboard</a>
 
         <div class="form-container">
-            <h3>Ajouter un nouveau bien (Immobilie hinzufügen)</h3>
+            <h3>Ajouter un nouveau bien</h3>
             <form id="addPropertyForm">
                 <div class="form-group">
                     <label>Titre du bien (Français) *</label>
@@ -198,12 +212,18 @@
                     <textarea id="add-desc" rows="3" placeholder="Détails du bien..."></textarea>
                 </div>
 
-                <button type="submit" class="btn-add">Créer l'annonce (Immobilie speichern)</button>
+                <div class="form-group">
+                    <label>Photos du bien</label>
+                    <input type="file" id="add-images" accept="image/*" multiple>
+                    <small style="color: #888;">Sélectionnez une ou plusieurs photos pour cette annonce.</small>
+                </div>
+
+                <button type="submit" class="btn-add" id="submitBtn">Créer l'annonce</button>
             </form>
         </div>
 
         <div class="list-container">
-            <h3>Inventaire des biens (Bestehende Immobilien)</h3>
+            <h3>Inventaire des biens</h3>
             <div id="list">Chargement des biens...</div>
         </div>
     </div>
@@ -248,43 +268,80 @@
         const supabaseUrl = 'https://tcljsecaawgczfguujsi.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjbGpzZWNhYXdnY3pmZ3V1anNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMTAwMTgsImV4cCI6MjA4ODg4NjAxOH0.sO-iKn8hg1PKdAZnf1ez6dtASYH0PKId4Zx5OmGfHI8';
 
-        // Umbenannt zu dbClient um den globalen Konflikt im Browser sicher zu umgehen
-        const dbClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+        // Initialisierung des Clients
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        // Logout Event
         document.getElementById("logoutBtn").addEventListener("click", async () => {
-            await dbClient.auth.signOut();
+            await supabaseClient.auth.signOut();
             window.location.replace("login.html");
         });
 
-        // HINZUFÜGEN LOGIK (NEU)
+        // IMMOBILIE SPEICHERN & BILD HOCHLADEN
         document.getElementById("addPropertyForm").addEventListener("submit", async (e) => {
             e.preventDefault();
-            
+            const submitBtn = document.getElementById("submitBtn");
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Téléchargement des images...";
+
+            const fileInput = document.getElementById("add-images");
+            const files = fileInput.files;
+            let imageUrls = [];
+
+            // Läuft durch alle ausgewählten Bilder und lädt sie hoch
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}_${i}.${fileExt}`;
+                const filePath = `${fileName}`;
+
+                // Nutzt exakt deinen Bucket 'immobilien-bilder'
+                const { data: uploadData, error: uploadError } = await supabaseClient.storage
+                    .from('immobilien-bilder')
+                    .upload(filePath, file);
+
+                if (!uploadError) {
+                    // Generiert die öffentliche URL zum Bild
+                    const { data: urlData } = supabaseClient.storage
+                        .from('immobilien-bilder')
+                        .getPublicUrl(filePath);
+                    
+                    imageUrls.push(urlData.publicUrl);
+                } else {
+                    console.error("Upload Fehler:", uploadError.message);
+                }
+            }
+
+            // Neues Objekt für die PostgreSQL-Datenbank
             const newProperty = {
                 title: document.getElementById("add-title").value,
                 type: document.getElementById("add-type").value,
                 preis: Number(document.getElementById("add-preis").value),
                 ort: document.getElementById("add-ort").value,
                 beschreibung: document.getElementById("add-desc").value,
-                status: 'aktiv' // Neue Immobilien sind standardmäßig aktiv
+                status: 'aktiv',
+                bilder: imageUrls // Speichert die URLs im Text-Array der Spalte 'bilder'
             };
 
-            const { error } = await dbClient.from('immoPromot').insert([newProperty]);
+            const { error } = await supabaseClient.from('immoPromot').insert([newProperty]);
+
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Créer l'annonce";
 
             if (error) {
-                alert("Erreur lors de l'ajout: " + error.message);
+                alert("Erreur: " + error.message);
             } else {
                 alert("Bien ajouté avec succès !");
-                document.getElementById("addPropertyForm").reset(); // Formular leeren
-                load(); // Liste neu laden
+                document.getElementById("addPropertyForm").reset();
+                load();
             }
         });
 
-        // LADEN LOGIK
+        // LADEN UND ANZEIGEN DER IMMOBILIEN
         async function load() {
             const listDiv = document.getElementById('list');
-            const { data, error } = await dbClient.from('immoPromot').select('*').order('created_at', { ascending: false });
+            
+            // Korrigiert von 'supabase.from' zu 'supabaseClient.from'
+            const { data, error } = await supabaseClient.from('immoPromot').select('*').order('created_at', { ascending: false });
 
             if (error) {
                 listDiv.innerHTML = "Erreur de chargement: " + error.message;
@@ -298,12 +355,18 @@
 
             listDiv.innerHTML = data.map(p => {
                 const isSold = p.status === 'verkauft';
+                // Nutzt das erste hochgeladene Bild, andernfalls ein Platzhalterbild
+                const firstImg = (p.bilder && p.bilder.length > 0) ? p.bilder[0] : '../img/placeholder.jpg';
+
                 return `
                 <div class="item">
-                    <div>
-                        <strong>${p.title || 'Sans titre'}</strong><br>
-                        <small style="color: #888;">${p.ort || 'Lieu inconnu'} | ${p.preis || 0} €</small><br>
-                        <span class="status-pill ${isSold ? 'status-verkauft' : 'status-aktiv'}">${isSold ? 'Vendu' : 'Actif'}</span>
+                    <div class="item-preview">
+                        <img src="${firstImg}" class="prop-thumb" alt="Preview">
+                        <div>
+                            <strong>${p.title || 'Sans titre'}</strong><br>
+                            <small style="color: #888;">${p.ort || 'Lieu inconnu'} | ${p.preis || 0} €</small><br>
+                            <span class="status-pill ${isSold ? 'status-verkauft' : 'status-aktiv'}">${isSold ? 'Vendu' : 'Actif'}</span>
+                        </div>
                     </div>
                     <div class="actions">
                         <button class="btn-edit" onclick="openEdit('${p.id}')">Modifier</button>
@@ -317,9 +380,9 @@
             }).join('');
         }
 
-        // EDIT LOGIK
+        // EDITIER-LOGIK (MODAL ÖFFNEN)
         window.openEdit = async (id) => {
-            const { data, error } = await dbClient.from('immoPromot').select('*').eq('id', id).single();
+            const { data, error } = await supabaseClient.from('immoPromot').select('*').eq('id', id).single();
             if (data) {
                 document.getElementById('edit-id').value = data.id;
                 document.getElementById('edit-title').value = data.title || '';
@@ -333,6 +396,7 @@
 
         window.closeModal = () => { document.getElementById('editModal').style.display = 'none'; };
 
+        // ÄNDERUNGEN SPEICHERN
         window.saveEdit = async () => {
             const id = document.getElementById('edit-id').value;
             const updates = {
@@ -343,18 +407,20 @@
                 beschreibung: document.getElementById('edit-desc').value
             };
 
-            const { error } = await dbClient.from('immoPromot').update(updates).eq('id', id);
+            const { error } = await supabaseClient.from('immoPromot').update(updates).eq('id', id);
             if (error) { alert("Erreur: " + error.message); } else { closeModal(); load(); }
         };
 
+        // STATUS ÄNDERN (Z.B. ALS VERKAUFT MARKIEREN)
         window.updateStatus = async (id, newStatus) => {
-            await dbClient.from('immoPromot').update({ status: newStatus }).eq('id', id);
+            await supabaseClient.from('immoPromot').update({ status: newStatus }).eq('id', id);
             load();
         };
 
+        // LÖSCH-FUNKTION
         window.deleteItem = async (id) => {
             if (confirm('Voulez-vous vraiment supprimer ce bien ?')) {
-                await dbClient.from('immoPromot').delete().eq('id', id);
+                await supabaseClient.from('immoPromot').delete().eq('id', id);
                 load();
             }
         };
