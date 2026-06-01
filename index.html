@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ImmoPromot</title>
+    <link rel="icon" type="image/x-icon" href="./img/favicon.ico">
+    <style>
+        /* --- Grundreset und Font --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+
+        body,
+        html {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            background: #ffffff;
+            color: #333;
+            scroll-behavior: smooth;
+        }
+
+        /* --- HEADER --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 8%;
+            background: white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        #headerlogo {
+            height: 60px;
+        }
+
+        nav#navmenu ul {
+            display: flex;
+            list-style: none;
+            gap: 40px;
+        }
+
+        nav#navmenu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            font-size: 17px;
+            letter-spacing: 0.5px;
+            position: relative;
+            transition: 0.3s;
+        }
+
+        nav#navmenu a::after {
+            content: "";
+            position: absolute;
+            width: 0%;
+            height: 2px;
+            background: #c62828;
+            left: 0;
+            bottom: -5px;
+            transition: 0.3s;
+        }
+
+        nav#navmenu a:hover::after,
+        nav#navmenu .active::after {
+            width: 100%;
+        }
+
+        nav#navmenu a:hover,
+        nav#navmenu .active {
+            color: #c62828;
+        }
+
+        /* Sprach-Switcher Styling */
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .lang-switcher {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .lang-btn {
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: #ccc;
+            transition: 0.3s;
+            padding: 0 5px;
+            font-weight: 600;
+        }
+
+        .lang-btn.active {
+            color: #c62828;
+        }
+
+        .lang-divider {
+            color: #ccc;
+            font-weight: 300;
+        }
+
+        /* --- Hamburger Menü --- */
+        #hamburger {
+            cursor: pointer;
+            width: 30px;
+            height: 25px;
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 1001;
+        }
+
+        #hamburger span {
+            display: block;
+            height: 3px;
+            background: #c62828;
+            border-radius: 2px;
+            transition: 0.4s;
+        }
+
+        #hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        #hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        #hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
+
+        /* --- Overlay --- */
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.3s ease;
+            z-index: 998;
+        }
+
+        #overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* --- HERO SECTION --- */
+        #Background {
+            height: 80vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+                url("https://images.unsplash.com/photo-1560184897-ae75f418493e") no-repeat center/cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            padding: 0 5%;
+        }
+
+        #title h1 {
+            font-size: 50px;
+            letter-spacing: 2px;
+        }
+
+        #title h2 {
+            font-weight: 300;
+            font-size: 20px;
+            margin-top: 10px;
+        }
+
+        #buttons {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        #buttons a {
+            padding: 12px 30px;
+            border-radius: 30px;
+            background: #c62828;
+            color: white;
+            font-weight: 500;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        #buttons a:hover {
+            background: #691d1d;
+            transform: translateY(-2px);
+        }
+
+        /* --- INFO SECTION --- */
+        #info {
+            padding: 60px 10%;
+        }
+
+        #titleinfo {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 50px;
+        }
+
+        #infoblocks123 {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        #infoblocks123>div,
+        #infoblock4,
+        #miniblock1 {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            text-align: center;
+            flex: 1 1 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #infoblocks123 img,
+        #infoblock4 img,
+        #miniblock1 img {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 15px;
+        }
+
+        .contact-btn {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 12px 25px;
+            background-color: #c62828;
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            transition: 0.3s;
+        }
+
+        .contact-btn:hover {
+            background-color: #892222;
+            transform: translateY(-2px);
+        }
+
+        /* --- CONTACT SECTION --- */
+        #supp {
+            margin-top: 60px;
+            padding: 60px 10%;
+            background: #c62828;
+            border-radius: 15px;
+            color: white;
+        }
+
+        #contactboxes {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .contactbox {
+            background: white;
+            color: #333;
+            padding: 25px;
+            border-radius: 15px;
+            flex: 1 1 250px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            width: 100%;
+            background: #111;
+            color: white;
+            padding: 40px 8%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 4px solid #c62828;
+        }
+
+        footer>#logofooter {
+            max-width: 150px;
+            height: auto;
+        }
+
+        #contact {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        #tel,
+        #mail {
+            width: 40px;
+            height: 40px;
+            background: #c62828;
+            border-radius: 50%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #tel img,
+        #mail img {
+            width: 24px;
+            height: 24px;
+        }
+
+        @media (max-width: 900px) {
+            header {
+                padding: 15px 5%;
+            }
+
+            #hamburger {
+                display: flex;
+            }
+
+            nav#navmenu {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: white;
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.4s ease;
+                z-index: 999;
+            }
+
+            nav#navmenu.active {
+                max-height: 500px;
+            }
+
+            nav#navmenu.active ul {
+                padding: 20px 0;
+            }
+
+            nav#navmenu ul {
+                flex-direction: column;
+                gap: 20px;
+                padding: 0;
+                text-align: center;
+            }
+
+            .header-controls {
+                gap: 10px;
+            }
+        }
+
+        .login-box {
+            display: inline-block;
+            padding: 4px 12px;
+            background-color: #c62828;
+            color: #000 !important;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <img id="headerlogo" src="./img/new_logo_2.svg" alt="logo" />
+        <nav id="navmenu">
+            <ul>
+                <li><a href="index.html" class="active" data-i18n="nav_home">Accueil</a></li>
+                <li><a href="acheter_ou_louer.html" data-i18n="nav_acheter">Nos Biens</a></li>
+                <li><a href="vendre.html" data-i18n="nav_vendre">Vendre</a></li>
+                <li><a href="investissement.html" data-i18n="nav_invest">Investissement</a></li>
+                <li><a href="faire_gerer.html" data-i18n="nav_gerer">Faire Gérer</a></li>
+                <li><a href="promoteur.html" data-i18n="nav_promot">Promoteur</a></li>
+                <li><a href="contacts.html" data-i18n="nav_contact">Contacts</a></li>
+            </ul>
+        </nav>
+
+        <div class="header-controls">
+            <div class="lang-switcher">
+                <button onclick="changeLanguage('fr')" id="lang-fr" class="lang-btn">FR</button>
+                <span class="lang-divider">|</span>
+                <button onclick="changeLanguage('de')" id="lang-de" class="lang-btn">DE</button>
+                <span class="lang-divider">|</span>
+                <button onclick="changeLanguage('en')" id="lang-en" class="lang-btn">EN</button>
+            </div>
+            <div id="hamburger"><span></span><span></span><span></span></div>
+        </div>
+        <div id="overlay"></div>
+    </header>
+
+    <div id="Background">
+        <div id="title">
+            <h1>Immopromot</h1>
+            <h2 data-i18n="hero_sub">Votre assistant dans la recherche d'un meilleur logement.</h2>
+        </div>
+        <div id="buttons">
+            <a href="acheter_ou_louer.html" data-i18n="nav_acheter">Nos Biens</a>
+        </div>
+    </div>
+
+    <div id="info">
+        <h2 id="titleinfo" data-i18n="services_title">Nos services personnalisés chez IMMOPROMOT :</h2>
+        <div id="infoblocks">
+            <div id="infoblocks123">
+                <div id="infoblock1">
+                    <img src="./img/emotik/house-add.svg" alt="Maison">
+                    <p><strong data-i18n="title_buy">Achats :</strong> <span data-i18n="service_1">Recherche de biens, estimation au juste prix, connaissance du marché local.</span></p>
+                </div>
+                <div id="infoblock2">
+                    <img src="./img/emotik/clipboard-data.svg" alt="Analyse">
+                    <p><strong data-i18n="title_sell">Ventes :</strong> <span data-i18n="service_2">Optimisation des prix grâce à l'analyse du marché, promotion efficace.</span></p>
+                </div>
+                <div id="infoblock3">
+                    <img src="./img/emotik/key.svg" alt="Clé">
+                    <p><strong data-i18n="title_rent">Locations :</strong> <span data-i18n="service_3">Processus simplifié, suivi complet du bail.</span></p>
+                </div>
+            </div>
+            <div id="infoblock4">
+                <img src="./img/emotik/cone-striped.svg" alt="Travaux">
+                <p><strong data-i18n="nav_gerer">Gestion :</strong> <span data-i18n="service_4">Suivi des loyers, état des lieux, travaux et procédures juridiques.</span></p>
+            </div>
+            <div id="miniblock1">
+                <p data-i18n="service_extra">Et encore de nombreux avantages avec notre agence pour vous simplifier la vie.</p>
+                <a class="contact-btn" href="contacts.html" data-i18n="btn_contact_us">Contactez-nous</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="supp">
+        <h2 id="cont" data-i18n="nav_contact">Contactez-nous</h2>
+        <div id="contactboxes">
+            <div class="contactbox">
+                <h3 data-i18n="nav_contact">Contact</h3>
+                <p>+352 691 872 900</p>
+                <p>immopromot2010@gmail.com</p>
+            </div>
+            <div class="contactbox">
+                <h3 data-i18n="lbl_address">Adresse</h3>
+                <p>ImmoPromot</p>
+                <p>13 rue de Bonnevoie, L-1260 Luxembourg</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <a href="./admin/login.html" class="login-box">Login</a>
+        <img id="logofooter" src="./img/new_logo_1.svg" alt="logo" />
+        <h2 id="titlefooter">ImmoPromot</h2>
+        <div id="contact">
+            <h3 data-i18n="nav_contact">Contact</h3>
+            <p><span id="tel"><img src="./img/emotik/telephone-forward.svg" alt="Tel"></span> +352 691 872 900</p>
+        </div>
+    </footer>
+
+    <script>
+        // Hamburger Menu Logic
+        const hamburger = document.getElementById("hamburger");
+        const nav = document.getElementById("navmenu");
+        const overlay = document.getElementById("overlay");
+
+        hamburger.addEventListener("click", () => {
+            hamburger.classList.toggle("active");
+            nav.classList.toggle("active");
+            overlay.classList.toggle("active");
+        });
+
+        // Translation Logic
+        const translations = {
+            fr: {
+                nav_home: "Accueil",
+                nav_acheter: "Nos Biens",
+                nav_vendre: "Vendre",
+                nav_invest: "Investissement",
+                nav_gerer: "Faire Gérer",
+                nav_promot: "Promoteur",
+                nav_contact: "Contacts",
+                hero_sub: "Votre assistant dans la recherche d'un meilleur logement.",
+                services_title: "Nos services personnalisés chez IMMOPROMOT :",
+                title_buy: "Achats :",
+                service_1: "Recherche de biens, estimation au juste prix, connaissance du marché local.",
+                title_sell: "Ventes :",
+                service_2: "Optimisation des prix grâce à l'analyse du marché, promotion efficace.",
+                title_rent: "Locations :",
+                service_3: "Processus simplifié, suivi complet du bail.",
+                service_4: "Suivi des loyers, état des lieux, travaux et procédures juridiques.",
+                service_extra: "Et encore de nombreux avantages avec notre agence pour vous simplifier la vie.",
+                btn_contact_us: "Contactez-nous",
+                lbl_address: "Adresse"
+            },
+            de: {
+                nav_home: "Startseite",
+                nav_acheter: "Immobilien",
+                nav_vendre: "Verkaufen",
+                nav_invest: "Investition",
+                nav_gerer: "Verwalten lassen",
+                nav_promot: "Bauträger",
+                nav_contact: "Kontakt",
+                hero_sub: "Ihr Partner bei der Suche nach dem perfekten Zuhause.",
+                services_title: "Unsere persönlichen Dienstleistungen bei IMMOPROMOT:",
+                title_buy: "Kauf:",
+                service_1: "Immobiliensuche, marktgerechte Bewertung, lokale Marktkenntnis.",
+                title_sell: "Verkauf:",
+                service_2: "Preisoptimierung durch Marktanalyse, effektive Vermarktung.",
+                title_rent: "Vermietung:",
+                service_3: "Vereinfachter Prozess, vollständige Mietvertragsbetreuung.",
+                service_4: "Miet- & Nebenkostenkontrolle, Abnahmen, Instandsetzung.",
+                service_extra: "Und viele weitere Vorteile, um Ihnen das Leben leichter zu machen.",
+                btn_contact_us: "Kontaktieren Sie uns",
+                lbl_address: "Adresse"
+            },
+            en: {
+                nav_home: "Home",
+                nav_acheter: "Properties",
+                nav_vendre: "Sell",
+                nav_invest: "Investment",
+                nav_gerer: "Management",
+                nav_promot: "Developer",
+                nav_contact: "Contact",
+                hero_sub: "Your assistant in finding a better home.",
+                services_title: "Our personalized services at IMMOPROMOT:",
+                title_buy: "Buying:",
+                service_1: "Property search, fair market valuation, local market expertise.",
+                title_sell: "Sales:",
+                service_2: "Price optimization through market analysis, effective promotion.",
+                title_rent: "Rentals:",
+                service_3: "Simplified process, full lease follow-up.",
+                service_4: "Rent collection, inspections, maintenance, and legal support.",
+                service_extra: "And many more advantages with our agency to simplify your life.",
+                btn_contact_us: "Contact Us",
+                lbl_address: "Address"
+            }
+        };
+
+        function changeLanguage(lang) {
+            localStorage.setItem('selectedLanguage', lang);
+            applyLanguage();
+        }
+
+        function applyLanguage() {
+            const lang = localStorage.getItem('selectedLanguage') || 'fr';
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.id === `lang-${lang}`);
+            });
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    el.innerHTML = translations[lang][key];
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', applyLanguage);
+    </script>
+</body>
+
+</html>

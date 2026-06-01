@@ -1,0 +1,519 @@
+/* Grundreset und Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body, html {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: #ffffff;
+  color: #333;
+}
+
+/* HEADER */
+ /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 8%;
+            background: white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        #headerlogo {
+            height: 60px;
+        }
+
+        nav#navmenu ul {
+            display: flex;
+            list-style: none;
+            gap: 40px;
+        }
+
+        nav#navmenu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            font-size: 17px;
+            letter-spacing: 0.5px;
+            position: relative;
+            transition: 0.3s;
+        }
+
+        nav#navmenu a::after {
+            content: "";
+            position: absolute;
+            width: 0%;
+            height: 2px;
+            background: #ff7a00;
+            left: 0;
+            bottom: -5px;
+            transition: 0.3s;
+        }
+
+        nav#navmenu a:hover::after {
+            width: 100%;
+        }
+
+        nav#navmenu a:hover,
+        nav#navmenu .active {
+            color: #ff7a00;
+        }
+/* Hamburger Menü */
+#hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+  z-index: 1001; /* über Overlay */
+}
+
+#hamburger span {
+  width: 28px;
+  height: 3px;
+  background: #ff7a00;
+  border-radius: 2px;
+  transition: 0.3s;
+}
+
+/* Overlay */
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 999;
+}
+
+#overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Mobile Menü */
+@media (max-width: 900px) {
+  nav#navmenu {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    background: white;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+    z-index: 1000;
+  }
+
+  nav#navmenu.active {
+    max-height: 600px; /* groß genug, dass alle 7 Links angezeigt werden */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+
+  nav#navmenu ul {
+    flex-direction: column;
+    text-align: center;
+    padding: 20px 0;
+    gap: 20px;
+  }
+
+  nav#navmenu li {
+    padding: 10px 0;
+  }
+
+  #hamburger {
+    display: flex;
+  }
+}
+
+/* HERO SECTION */
+#Background {
+  height: 80vh;
+  background: linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.4)),
+              url("https://images.unsplash.com/photo-1560184897-ae75f418493e") no-repeat center/cover;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: white;
+}
+
+#title h1 {
+  font-size: 60px;
+  letter-spacing: 3px;
+}
+
+#title h2 {
+  margin-top: 10px;
+  font-weight: 300;
+}
+
+/* BUTTONS */
+#buttons {
+  margin-top: 30px;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+#buttons a {
+  padding: 15px 35px;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: 0.3s;
+  background: #ff7a00;
+  color: white;
+  display: inline-block;
+  text-align: center;
+}
+
+#buttons a:hover {
+  background: #e66900;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* INFO SECTION */
+#info {
+  padding: 80px 10%;
+}
+
+#titleinfo {
+  text-align: center;
+  margin-bottom: 60px;
+  font-size: 28px;
+}
+
+/* INFO BLOCKS */
+#infoblocks123 {
+  display: flex;
+  gap: 30px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+#infoblock1,
+#infoblock2,
+#infoblock3,
+#infoblock4 {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  transition: 0.3s;
+  flex: 1 1 250px;
+}
+
+#infoblock1:hover,
+#infoblock2:hover,
+#infoblock3:hover,
+#infoblock4:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+#miniblock1 {
+  margin-top: 20px;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* CONTACT SECTION */
+#supp {
+  margin-top: 80px;
+  background: #ff7a00;
+  padding: 80px 10%;
+  border-radius: 15px;
+  color: white;
+}
+
+#cont {
+  text-align: center;
+  font-size: 32px;
+  margin-bottom: 50px;
+}
+
+/* CONTACT BOXES */
+#contactboxes {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.contactbox {
+  background: white;
+  color: #333;
+  padding: 35px;
+  width: 300px;
+  border-radius: 15px;
+  text-align: center;
+  transition: 0.3s;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.contactbox h3 {
+  color: #ff7a00;
+  margin-bottom: 15px;
+}
+
+.contactbox:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* FOOTER */
+footer {
+  width: 100%;
+  background: #111;
+  color: white;
+  padding: 40px 8%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  border-top: 4px solid #ff7a00;
+  box-sizing: border-box;
+}
+
+footer > #logofooter {
+  height: 60px;
+  flex: 1 1 150px;
+  max-width: 150px;
+  object-fit: contain;
+}
+
+#titlefooter {
+  flex: 2 1 300px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+#contact {
+  flex: 2 1 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 400;
+}
+
+#contact h3 {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+#contact img {
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+#contact p {
+  margin: 0 0 6px 24px;
+  line-height: 1.3;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  nav#navmenu ul {
+    gap: 20px;
+  }
+
+  #infoblocks123 {
+    flex-direction: column;
+  }
+
+  footer {
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    text-align: center;
+  }
+
+  footer > #logofooter,
+  #titlefooter,
+  #contact {
+    flex: none;
+    max-width: 100%;
+  }
+
+  #contact p {
+    margin-left: 0;
+  }
+
+  #contact {
+    align-items: center;
+  }
+
+  #buttons {
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+/* Kontaktbereich Footer: Icons neben Text mit orangem Hintergrund */
+footer #contact {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Abstand zwischen den Kontaktzeilen */
+}
+
+footer #contact div.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Abstand zwischen Icon und Text */
+  background-color: #ff7a00; /* oranger Hintergrund */
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: white; /* Textfarbe weiß */
+}
+
+footer #contact div.contact-item img {
+  width: 24px;
+  height: 24px;
+}
+
+/* Footer Icons mit orangem Hintergrund und rund */
+footer #contact p {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Abstand zwischen Icon und Text */
+  margin: 5px 0;
+}
+
+footer #contact p img {
+  width: 20px;
+  height: 20px;
+  background-color: #ff7a00; /* orangener Hintergrund */
+  border-radius: 50%; /* rund */
+  padding: 5px; /* Innenabstand für die Größe */
+  display: inline-block;
+}
+/* Footer Icons mit orangem Hintergrund und rund */
+#tel, #mail {
+  background-color: #ff7a00; /* orangener Hintergrund */
+  border-radius: 50%;        /* rund */
+  padding: 5px;              /* Innenabstand für Größe */
+  width: 20px;               /* feste Breite */
+  height: 20px;              /* feste Höhe */
+  display: inline-block;
+  object-fit: contain;       /* damit das Icon passt */
+}
+/* Hamburger Styles */
+.hamburger {
+    display: none; /* Standardmäßig versteckt */
+    cursor: pointer;
+    flex-direction: column;
+    gap: 5px;
+    z-index: 1100;
+}
+
+.bar {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: white;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Mobile Anpassungen */
+@media (max-width: 768px) {
+    .hamburger {
+        display: flex;
+    }
+
+    nav ul {
+        position: fixed;
+        left: -100%; /* Menü ist links außerhalb des Bildschirms */
+        top: 70px;
+        flex-direction: column;
+        background-color: #1a1a1a;
+        width: 100%;
+        text-align: center;
+        transition: 0.3s;
+        box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
+    }
+
+    nav ul.active {
+        left: 0; /* Menü rutscht rein */
+    }
+
+    nav ul li {
+        margin: 2.5rem 0;
+    }
+}
+
+/* Animation zum X */
+.hamburger.active .bar:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger.active .bar:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+
+.hamburger.active .bar:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+}
+/* Language Switcher Styling */
+.language-switcher {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 20px;
+    font-weight: 500;
+}
+
+.lang-btn {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.6);
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+}
+
+.lang-btn:hover {
+    color: #fff;
+}
+
+.lang-btn.active {
+    color: var(--accent); /* Dein Gold-Ton */
+    background: rgba(197, 160, 89, 0.1);
+}
+
+.lang-divider {
+    color: rgba(255,255,255,0.2);
+    font-size: 0.8rem;
+}
+
+/* Fix für Mobile: Switcher sichtbar lassen */
+@media (max-width: 768px) {
+    .nav-actions {
+        display: flex;
+        align-items: center;
+    }
+}

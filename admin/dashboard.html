@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord - ImmoPromot</title>
+    <link rel="icon" type="image/x-icon" href="../img/favicon.ico">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        /* Versteckt den Body initial, um "Flickering" zu vermeiden */
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background: #f8f9fa;
+            color: #333;
+            visibility: hidden; /* Schaltet JS erst nach erfolgreichem Login ein */
+        }
+
+        header {
+            background: #ffffff;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        header h2 {
+            margin: 0;
+            color: #c62828;
+            font-size: 1.5rem;
+        }
+
+        .container {
+            padding: 40px;
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: #444;
+        }
+
+        button {
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-main {
+            background: #c62828;
+            color: white;
+        }
+
+        .btn-main:hover {
+            background: #a52222;
+        }
+
+        .btn-secondary {
+            background: #333;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #555;
+        }
+
+        .btn-site {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-site:hover {
+            background: #e0e0e0;
+        }
+
+        .logout {
+            background: transparent;
+            border: 1px solid #ddd;
+            color: #666;
+            width: auto;
+            padding: 8px 20px;
+        }
+
+        .logout:hover {
+            border-color: #c62828;
+            color: #c62828;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h2>ImmoPromot Admin</h2>
+        <button class="logout" id="logoutBtn">Déconnexion</button>
+    </header>
+
+    <div class="container">
+        <h1>Tableau de bord</h1>
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3>Gestion des biens</h3>
+                <button class="btn-main" onclick="window.location.href='./add-property.html'">Ajouter un bien</button>
+                <button class="btn-secondary" onclick="window.location.href='./manage-properties.html'">Gérer les biens</button>
+            </div>
+
+            <div class="card">
+                <h3>Navigation Web</h3>
+                <button class="btn-site" onclick="window.location.href='../index.html'">Retour au site (Accueil)</button>
+                <button class="btn-site" onclick="window.location.href='../acheter_ou_louer.html'">Page Acheter ou Louer</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://tcljsecaawgczfguujsi.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjbGpzZWNhYXdnY3pmZ3V1anNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMTAwMTgsImV4cCI6MjA4ODg4NjAxOH0.sO-iKn8hg1PKdAZnf1ez6dtASYH0PKId4Zx5OmGfHI8';
+
+        // LÖSUNG: Variable in 'supabaseClient' geändert, um den globalen Konflikt zu lösen
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+        
+        // Prüft die Session sofort
+        async function checkAuth() {
+            try {
+                // Nutzt die sichere 'supabaseClient' Instanz
+                const { data: { session }, error } = await supabaseClient.auth.getSession();
+
+                if (error || !session) {
+                    window.location.replace("login.html");
+                } else {
+                    // Session ist valide -> Dashboard anzeigen
+                    document.body.style.visibility = "visible";
+                }
+            } catch (e) {
+                console.error("Auth-Fehler:", e);
+                window.location.replace("login.html");
+            }
+        }
+
+        // Logout Funktion
+        async function handleLogout() {
+            try {
+                // Nutzt die sichere 'supabaseClient' Instanz
+                await supabaseClient.auth.signOut();
+                // LocalStorage säubern
+                localStorage.removeItem('supabase.auth.token');
+                window.location.replace("login.html");
+            } catch (e) {
+                console.error("Logout-Fehler:", e);
+            }
+        }
+
+        // Event Listener aktivieren
+        document.addEventListener('DOMContentLoaded', checkAuth);
+        document.getElementById("logoutBtn").addEventListener("click", handleLogout);
+    </script>
+</body>
+
+</html>

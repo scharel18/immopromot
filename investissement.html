@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="format-detection" content="telephone=no">
+    <title>Investissement - ImmoPromot</title>
+    <link rel="icon" type="image/x-icon" href="./img/favicon.ico">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+        /* Grundstil */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+
+        body,
+        html {
+            width: 100%;
+            background: #fff;
+            color: #333;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 8%;
+            background: white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        #headerlogo {
+            height: 60px;
+        }
+
+        nav#navmenu ul {
+            display: flex;
+            list-style: none;
+            gap: 40px;
+        }
+
+        nav#navmenu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            font-size: 17px;
+            letter-spacing: 0.5px;
+            position: relative;
+            transition: 0.3s;
+        }
+
+        nav#navmenu a::after {
+            content: "";
+            position: absolute;
+            width: 0%;
+            height: 2px;
+            background: #c62828;
+            left: 0;
+            bottom: -5px;
+            transition: 0.3s;
+        }
+
+        nav#navmenu a:hover::after,
+        nav#navmenu .active::after {
+            width: 100%;
+        }
+
+        nav#navmenu a:hover,
+        nav#navmenu .active {
+            color: #c62828;
+        }
+
+        /* Sprach-Switcher Styling */
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .lang-switcher {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .lang-btn {
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: #ccc;
+            transition: 0.3s;
+            padding: 0 5px;
+            font-weight: 600;
+        }
+
+        .lang-btn.active {
+            color: #c62828;
+        }
+
+        .lang-divider {
+            color: #ccc;
+            font-weight: 300;
+        }
+
+        /* Hamburger & Mobile Menu */
+        #hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+            z-index: 1100;
+        }
+
+        #hamburger span {
+            width: 28px;
+            height: 3px;
+            background: #c62828;
+            border-radius: 2px;
+            transition: 0.4s;
+        }
+
+        #hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        #hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        #hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.3s;
+            z-index: 900;
+        }
+
+        #overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        @media(max-width:900px) {
+            #hamburger {
+                display: flex;
+            }
+
+            nav#navmenu {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: white;
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.4s ease;
+                z-index: 1000;
+            }
+
+            nav#navmenu.active {
+                max-height: 500px;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            }
+
+            nav#navmenu ul {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px 0;
+                gap: 20px;
+            }
+
+            .header-controls {
+                gap: 10px;
+            }
+        }
+
+        /* Hero Background */
+        #Background {
+            height: 40vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+                url("https://images.unsplash.com/photo-1560184897-ae75f418493e") no-repeat center/cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+        }
+
+        #Background h1 {
+            font-size: 50px;
+            letter-spacing: 3px;
+        }
+
+        /* Main Content */
+        main {
+            padding: 60px 8%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1.main-title {
+            text-align: center;
+            margin-bottom: 50px;
+            font-size: 2.2rem;
+            color: #333;
+        }
+
+        .invest-blocks {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .invest-block {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .invest-block:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .invest-block h2 {
+            margin-bottom: 15px;
+            color: #c62828;
+            font-size: 1.3rem;
+        }
+
+        .invest-block p {
+            line-height: 1.5;
+            color: #555;
+        }
+
+        .invest-block img {
+            width: 50px;
+            height: 50px;
+            display: block;
+            margin: 0 auto 15px;
+        }
+
+        .contact-button-container {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .contact-button {
+            background: #c62828;
+            color: white;
+            text-decoration: none;
+            padding: 15px 35px;
+            border-radius: 30px;
+            font-weight: 500;
+            transition: 0.3s;
+            display: inline-block;
+        }
+
+        .contact-button:hover {
+            background: #871e1e;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Footer */
+        footer {
+            background: #111;
+            color: white;
+            padding: 40px 8%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 4px solid #c62828;
+        }
+
+        #logofooter {
+            max-width: 150px;
+        }
+
+        #contact-footer-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .footer-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .footer-item p {
+            color: white !important;
+            margin: 0;
+            text-decoration: none;
+        }
+
+        .footer-icon {
+            width: 35px;
+            height: 35px;
+            background: #c62828;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            }
+
+        .footer-icon img {
+            width: 18px;
+        }
+
+        @media(max-width:900px) {
+            #Background h1 {
+                font-size: 35px;
+            }
+
+            footer {
+                flex-direction: column;
+                text-align: center;
+                gap: 30px;
+            }
+
+            #contact-footer-info {
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <img id="headerlogo" src="./img/new_logo_2.svg" alt="logo" />
+        <nav id="navmenu">
+            <ul>
+                <li><a href="index.html" data-i18n="nav_home">Accueil</a></li>
+                <li><a href="acheter_ou_louer.html" data-i18n="nav_acheter">Nos Biens</a></li>
+                <li><a href="vendre.html" data-i18n="nav_vendre">Vendre</a></li>
+                <li><a href="investissement.html" class="active" data-i18n="nav_invest">Investissement</a></li>
+                <li><a href="faire_gerer.html" data-i18n="nav_gerer">Faire Gérer</a></li>
+                <li><a href="promoteur.html" data-i18n="nav_promot">Promoteur</a></li>
+                <li><a href="contacts.html" data-i18n="nav_contact">Contacts</a></li>
+            </ul>
+        </nav>
+
+        <div class="header-controls">
+            <div class="lang-switcher">
+                <button onclick="changeLanguage('fr')" id="lang-fr" class="lang-btn">FR</button>
+                <span class="lang-divider">|</span>
+                <button onclick="changeLanguage('de')" id="lang-de" class="lang-btn">DE</button>
+                <span class="lang-divider">|</span>
+                <button onclick="changeLanguage('en')" id="lang-en" class="lang-btn">EN</button>
+            </div>
+            <div id="hamburger"><span></span><span></span><span></span></div>
+        </div>
+        <div id="overlay"></div>
+    </header>
+
+    <div id="Background">
+        <h1 data-i18n="nav_invest">Investissement</h1>
+        <h2 data-i18n="invest_hero_sub">Investissez dans des projets immobiliers fiables</h2>
+    </div>
+
+    <main>
+        <h1 class="main-title" data-i18n="invest_main_title">Assurez votre avenir financier grâce à l’immobilier</h1>
+
+        <div class="invest-blocks">
+            <div class="invest-block">
+                <img src="./img/emotik/invest/pin-angle.svg" alt="pin">
+                <h2 data-i18n="invest_block1_t">Projets sélectionnés</h2>
+                <p data-i18n="invest_block1_p">Nous choisissons uniquement des projets immobiliers sérieux et rentables pour nos investisseurs.</p>
+            </div>
+
+            <div class="invest-block">
+                <img src="./img/emotik/invest/person-fill-check.svg" alt="person">
+                <h2 data-i18n="invest_block2_t">Accompagnement complet</h2>
+                <p data-i18n="invest_block2_p">De l'étude du projet à la mise en location, nous vous accompagnons à chaque étape.</p>
+            </div>
+
+            <div class="invest-block">
+                <img src="./img/emotik/invest/search.svg" alt="transperence">
+                <h2 data-i18n="invest_block3_t">Transparence totale</h2>
+                <p data-i18n="invest_block3_p">Chaque investissement est présenté avec toutes les informations nécessaires.</p>
+            </div>
+
+            <div class="invest-block">
+                <img src="./img/emotik/invest/key.svg" alt="key">
+                <h2 data-i18n="invest_block4_t">Gestion clé en main</h2>
+                <p data-i18n="invest_block4_p">Nous prenons en charge la gestion locative pour assurer un rendement optimal.</p>
+            </div>
+
+            <div class="invest-block">
+                <img src="./img/emotik/invest/house-lock.svg" alt="secure">
+                <h2 data-i18n="invest_block5_t">Sécurité et sérénité</h2>
+                <p data-i18n="invest_block5_p">Assurance loyers impayés et protection contre les risques pour un investissement sécurisé.</p>
+            </div>
+        </div>
+
+        <div class="contact-button-container">
+            <a href="contacts.html" class="contact-button" data-i18n="btn_contact_us">Contactez-nous</a>
+        </div>
+    </main>
+
+    <footer>
+        <img id="logofooter" src="./img/new_logo_1.svg" alt="logo" />
+        <h2 id="titlefooter">ImmoPromot</h2>
+        <div id="contact-footer-info">
+            <h3 style="color:#c62828; margin-bottom:5px;" data-i18n="footer_contact_title">Contact</h3>
+            <div class="footer-item">
+                <div class="footer-icon"><img src="./img/emotik/telephone-forward.svg" alt="tel"></div>
+                <p>+352 691 872 900</p>
+            </div>
+            <div class="footer-item">
+                <div class="footer-icon"><img src="./img/emotik/envelope-arrow-down.svg" alt="mail"></div>
+                <p>immopromot2010@gmail.com</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const hamburger = document.getElementById("hamburger");
+        const nav = document.getElementById("navmenu");
+        const overlay = document.getElementById("overlay");
+
+        hamburger.addEventListener("click", () => {
+            hamburger.classList.toggle("active");
+            nav.classList.toggle("active");
+            overlay.classList.toggle("active");
+        });
+
+        overlay.addEventListener("click", () => {
+            hamburger.classList.remove("active");
+            nav.classList.remove("active");
+            overlay.classList.remove("active");
+        });
+
+        // Translations Logic
+        const translations = {
+            fr: {
+                nav_home: "Accueil",
+                nav_acheter: "Nos Biens",
+                nav_vendre: "Vendre",
+                nav_invest: "Investissement",
+                nav_gerer: "Faire Gérer",
+                nav_promot: "Promoteur",
+                nav_contact: "Contacts",
+                invest_hero_sub: "Investissez dans des projets immobiliers fiables",
+                invest_main_title: "Assurez votre avenir financier grâce à l’immobilier",
+                invest_block1_t: "Projets sélectionnés",
+                invest_block1_p: "Nous choisissons uniquement des projets immobiliers sérieux et rentables pour nos investisseurs.",
+                invest_block2_t: "Accompagnement complet",
+                invest_block2_p: "De l'étude du projet à la mise en location, nous vous accompagnons à chaque étape.",
+                invest_block3_t: "Transparence totale",
+                invest_block3_p: "Chaque investissement est présenté avec toutes les informations nécessaires.",
+                invest_block4_t: "Gestion clé en main",
+                invest_block4_p: "Nous prenons en charge la gestion locative pour assurer un rendement optimal.",
+                invest_block5_t: "Sécurité et sérénité",
+                invest_block5_p: "Assurance loyers impayés et protection contre les risques pour un investissement sécurisé.",
+                btn_contact_us: "Contactez-nous",
+                footer_contact_title: "Contact"
+            },
+            de: {
+                nav_home: "Startseite",
+                nav_acheter: "Immobilien",
+                nav_vendre: "Verkaufen",
+                nav_invest: "Investition",
+                nav_gerer: "Verwalten lassen",
+                nav_promot: "Bauträger",
+                nav_contact: "Kontakt",
+                invest_hero_sub: "Investieren Sie in zuverlässige Immobilienprojekte",
+                invest_main_title: "Sichern Sie Ihre finanzielle Zukunft durch Immobilien",
+                invest_block1_t: "Ausgewählte Projekte",
+                invest_block1_p: "Wir wählen nur seriöse und rentable Immobilienprojekte für unsere Investoren aus.",
+                invest_block2_t: "Vollständige Begleitung",
+                invest_block2_p: "Von der Projektstudie bis zur Vermietung unterstützen wir Sie bei jedem Schritt.",
+                invest_block3_t: "Vollständige Transparenz",
+                invest_block3_p: "Jede Investition wird mit allen notwendigen Informationen präsentiert.",
+                invest_block4_t: "Schlüsselfertige Verwaltung",
+                invest_block4_p: "Wir übernehmen die Mietverwaltung, um eine optimale Rendite zu gewährleisten.",
+                invest_block5_t: "Sicherheit und Gelassenheit",
+                invest_block5_p: "Mietwohnungsausfallversicherung und Risikoschutz für eine sichere Investition.",
+                btn_contact_us: "Kontaktieren Sie uns",
+                footer_contact_title: "Kontakt"
+            },
+            en: {
+                nav_home: "Home",
+                nav_acheter: "Properties",
+                nav_vendre: "Sell",
+                nav_invest: "Investment",
+                nav_gerer: "Management",
+                nav_promot: "Developer",
+                nav_contact: "Contact",
+                invest_hero_sub: "Invest in reliable real estate projects",
+                invest_main_title: "Secure your financial future through real estate",
+                invest_block1_t: "Selected Projects",
+                invest_block1_p: "We only choose serious and profitable real estate projects for our investors.",
+                invest_block2_t: "Full Support",
+                invest_block2_p: "From project study to leasing, we support you at every step.",
+                invest_block3_t: "Full Transparency",
+                invest_block3_p: "Every investment is presented with all the necessary information.",
+                invest_block4_t: "Turnkey Management",
+                invest_block4_p: "We take care of the rental management to ensure an optimal return.",
+                invest_block5_t: "Security & Serenity",
+                invest_block5_p: "Unpaid rent insurance and risk protection for a secure investment.",
+                btn_contact_us: "Contact Us",
+                footer_contact_title: "Contact"
+            }
+        };
+
+        function changeLanguage(lang) {
+            localStorage.setItem('selectedLanguage', lang);
+            applyLanguage();
+        }
+
+        function applyLanguage() {
+            const lang = localStorage.getItem('selectedLanguage') || 'fr';
+            
+            // Fix SEO & Document Language property
+            document.documentElement.lang = lang;
+
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.id === `lang-${lang}`);
+            });
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', applyLanguage);
+    </script>
+
+</body>
+</html>

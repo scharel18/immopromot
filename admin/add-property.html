@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter un Bien - ImmoPromot Admin</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        body {
+            font-family: "Poppins", sans-serif;
+            background: #f8f9fa;
+            margin: 0;
+            color: #333;
+            visibility: hidden; /* Wird per JS nach dem Auth-Check auf visible gesetzt */
+        }
+
+        header {
+            background: white;
+            padding: 15px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .container {
+            padding: 40px 8%;
+            max-width: 900px;
+            margin: auto;
+        }
+
+        form {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        h3 {
+            margin: 20px 0 10px 0;
+            color: #c62828;
+            font-size: 1.1rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        input,
+        select,
+        textarea {
+            margin-bottom: 15px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .btn-submit {
+            padding: 15px;
+            background: #c62828;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+
+        .btn-submit:disabled {
+            background: #ccc;
+        }
+
+        .logout {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        #preview {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        #preview img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        #msg {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div style="padding: 10px;">
+            <a href="dashboard.html" style="text-decoration: none; color: #c62828; font-weight: 600;">
+                &larr; Tableau de Bord
+            </a>
+        </div>
+        <h2>Admin Panel</h2>
+        <button id="logoutBtn" class="logout">Déconnexion</button>
+    </header>
+
+    <div class="container">
+        <form id="addPropertyForm">
+            <h1>Ajouter un nouveau bien</h1>
+
+            <h3>Titres</h3>
+            <input type="text" id="title" placeholder="Nom de la propriété (ex: Maison de campagne)" required />
+
+            <h3>Infos Générales</h3>
+            <select id="type" required>
+                <option value="">Sélectionnez un type</option>
+                <option value="Haus">Maison (Haus)</option>
+                <option value="Wohnung">Appartement (Wohnung)</option>
+            </select>
+            <input type="number" id="preis" placeholder="Prix (€)" required />
+            <input type="text" id="ort" placeholder="Lieu / Code Postal" required />
+
+            <h3>Description</h3>
+            <textarea id="beschreibung" placeholder="Description du bien..." rows="6" required></textarea>
+
+            <h3>Médias</h3>
+            <input type="file" id="bilder" multiple accept="image/*" />
+            <div id="preview"></div>
+
+            <button type="submit" id="submitBtn" class="btn-submit">Enregistrer le bien</button>
+            <div id="msg"></div>
+        </form>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://tcljsecaawgczfguujsi.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjbGpzZWNhYXdnY3pmZ3V1anNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMTAwMTgsImV4cCI6MjA4ODg4NjAxOH0.sO-iKn8hg1PKdAZnf1ez6dtASYH0PKId4Zx5OmGfHI8';
+
+        // LÖSUNG: Variable zu supabaseClient umbenannt
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // Prüft die Session
+        async function checkAuth() {
+            try {
+                const { data: { session }, error } = await supabaseClient.auth.getSession();
+                if (error || !session) {
+                    window.location.replace("login.html");
+                } else {
+                    document.body.style.visibility = "visible";
+                }
+            } catch (e) {
+                console.error("Auth Check Error:", e);
+                window.location.replace("login.html");
+            }
+        }
+        document.addEventListener('DOMContentLoaded', checkAuth);
+
+        // Logout
+        document.getElementById("logoutBtn").addEventListener("click", async () => {
+            await supabaseClient.auth.signOut();
+            localStorage.removeItem('supabase.auth.token');
+            window.location.replace("login.html");
+        });
+
+        // Bildvorschau
+        document.getElementById("bilder").addEventListener("change", (e) => {
+            const preview = document.getElementById("preview");
+            preview.innerHTML = "";
+            Array.from(e.target.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const img = document.createElement("img");
+                    img.src = ev.target.result;
+                    preview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        // Formular absenden
+        document.getElementById("addPropertyForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById("submitBtn");
+            const msg = document.getElementById("msg");
+
+            btn.disabled = true;
+            msg.style.display = "block";
+            msg.style.background = "#e3f2fd";
+            msg.style.color = "#1976d2";
+            msg.innerText = "⏳ Enregistrement en cours...";
+
+            try {
+                const files = document.getElementById("bilder").files;
+                const urls = [];
+
+                // Bilder-Upload
+                for (let file of files) {
+                    const name = `immo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                    const { error: err } = await supabaseClient.storage.from('immobilien-bilder').upload(name, file);
+                    if (err) throw err;
+                    
+                    const { data } = supabaseClient.storage.from('immobilien-bilder').getPublicUrl(name);
+                    urls.push(data.publicUrl);
+                }
+
+                // In Datenbank speichern
+                const { error: dbErr } = await supabaseClient.from('immoPromot').insert([{
+                    title: document.getElementById("title").value,
+                    type: document.getElementById("type").value,
+                    preis: Number(document.getElementById("preis").value),
+                    ort: document.getElementById("ort").value,
+                    beschreibung: document.getElementById("beschreibung").value,
+                    status: 'Aktiv',
+                    bilder: urls
+                }]);
+
+                if (dbErr) throw dbErr;
+
+                msg.style.background = "#e8f5e9";
+                msg.style.color = "#2e7d32";
+                msg.innerText = "✅ Succès ! Le bien a été ajouté.";
+                document.getElementById("addPropertyForm").reset();
+                document.getElementById("preview").innerHTML = "";
+            } catch (err) {
+                console.error(err);
+                msg.style.background = "#ffebee";
+                msg.style.color = "#c62828";
+                msg.innerText = "❌ Erreur : " + err.message;
+            } finally {
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>

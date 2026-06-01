@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="format-detection" content="telephone=no">
+    <title>Faire Gérer - ImmoPromot</title>
+    <link rel="icon" type="image/x-icon" href="./img/favicon.ico">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+
+        body,
+        html {
+            width: 100%;
+            background: #fff;
+            color: #333;
+            scroll-behavior: smooth;
+        }
+
+        /* Header & Navigation */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 8%;
+            background: white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        #headerlogo {
+            height: 60px;
+        }
+
+        nav#navmenu ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        nav#navmenu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        nav#navmenu a:hover,
+        nav#navmenu .active {
+            color: #c62828;
+        }
+
+        /* Sprach-Switcher */
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .lang-switcher {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .lang-btn {
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: #ccc;
+            transition: 0.3s;
+            padding: 0 5px;
+        }
+
+        .lang-btn.active {
+            color: #c62828;
+        }
+
+        .lang-divider {
+            color: #ccc;
+            font-weight: 300;
+            cursor: default;
+        }
+
+        /* Mobile & Hamburger Animation */
+        #hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        #hamburger span {
+            width: 28px;
+            height: 3px;
+            background: #c62828;
+            border-radius: 2px;
+            transition: 0.3s ease-in-out;
+        }
+
+        /* Verwandelt Hamburger in ein 'X' wenn aktiv */
+        #hamburger.active span:nth-child(1) {
+            transform: translateY(9px) rotate(45deg);
+        }
+
+        #hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        #hamburger.active span:nth-child(3) {
+            transform: translateY(-9px) rotate(-45deg);
+        }
+
+        @media (max-width: 1100px) {
+            #hamburger {
+                display: flex;
+            }
+
+            nav#navmenu {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: white;
+                max-height: 0;
+                overflow: hidden;
+                transition: 0.4s ease-in-out;
+                z-index: 1000;
+            }
+
+            nav#navmenu.active {
+                max-height: 600px;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            }
+
+            nav#navmenu ul {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px 0;
+            }
+        }
+
+        /* Hero */
+        #Background {
+            height: 40vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+                url("https://images.unsplash.com/photo-1560184897-ae75f418493e") no-repeat center/cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        #Background h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        /* Content Blocks */
+        #gestion-container {
+            max-width: 1200px;
+            margin: 60px auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            padding: 0 8%;
+            justify-content: center;
+        }
+
+        .gestion-block {
+            background: #fff;
+            flex: 1 1 300px;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            transition: 0.3s transform ease, 0.3s box-shadow ease;
+        }
+
+        .gestion-block:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .gestion-block h2 {
+            color: #c62828;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .gestion-block p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .gestion-block img {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 15px;
+        }
+
+        /* Footer */
+        footer {
+            background: #111;
+            color: white;
+            padding: 40px 8%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            border-top: 4px solid #c62828;
+        }
+
+        .footer-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .footer-icon {
+            width: 35px;
+            height: 35px;
+            background: #c62828;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .footer-icon img {
+            width: 18px;
+            height: 18px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <img id="headerlogo" src="./img/new_logo_2.svg" alt="logo" />
+        <nav id="navmenu">
+            <ul>
+                <li><a href="index.html" data-i18n="nav_home">Accueil</a></li>
+                <li><a href="acheter_ou_louer.html" data-i18n="nav_acheter">Nos Biens</a></li>
+                <li><a href="vendre.html" data-i18n="nav_vendre">Vendre</a></li>
+                <li><a href="investissement.html" data-i18n="nav_invest">Investissement</a></li>
+                <li><a href="faire_gerer.html" class="active" data-i18n="nav_gerer">Faire Gérer</a></li>
+                <li><a href="promoteur.html" data-i18n="nav_promot">Promoteur</a></li>
+                <li><a href="contacts.html" data-i18n="nav_contact">Contacts</a></li>
+            </ul>
+        </nav>
+        <div class="header-controls">
+            <div class="lang-switcher">
+                <button onclick="window.changeLanguage('fr')" id="lang-fr" class="lang-btn">FR</button>
+                <span class="lang-divider">|</span>
+                <button onclick="window.changeLanguage('de')" id="lang-de" class="lang-btn">DE</button>
+                <span class="lang-divider">|</span>
+                <button onclick="window.changeLanguage('en')" id="lang-en" class="lang-btn">EN</button>
+            </div>
+            <div id="hamburger"><span></span><span></span><span></span></div>
+        </div>
+    </header>
+
+    <div id="Background">
+        <h1 data-i18n="nav_gerer">Faire Gérer</h1>
+        <h2 data-i18n="gerer_subtitle">Gestion locative complète</h2>
+    </div>
+
+    <div id="gestion-container">
+        <div class="gestion-block">
+            <img src="./img/emotik/faire/house-add.svg" alt="mission">
+            <h2 data-i18n="title_mission">Notre mission</h2>
+            <p data-i18n="desc_mission">ImmoPromot assure le paiement des loyers et la protection contre les dégradations, vous permettant de déléguer entièrement la gestion locative.</p>
+        </div>
+
+        <div class="gestion-block">
+            <img src="./img/emotik/faire/person-check.svg" alt="why">
+            <h2 data-i18n="title_why">Pourquoi nous choisir ?</h2>
+            <p data-i18n="desc_why">Gagnez du temps, optimisez la rentabilité de votre bien und bénéficiez de revenus locatifs réguliers sans stress.</p>
+        </div>
+
+        <div class="gestion-block">
+            <img src="./img/emotik/faire/map.svg" alt="search">
+            <h2 data-i18n="title_search">Recherche de locataires</h2>
+            <p data-i18n="desc_search">Diffusion des annonces, visites accompagnées, sélection rigoureuse des candidats et signature des baux.</p>
+        </div>
+
+        <div class="gestion-block">
+            <img src="./img/emotik/faire/credit-card.svg" alt="finance">
+            <h2 data-i18n="title_finance">Gestion financière</h2>
+            <p data-i18n="desc_finance">Encaissement des loyers, transmission des quittances et option Assurance loyers impayés.</p>
+        </div>
+
+        <div class="gestion-block">
+            <img src="./img/emotik/faire/house-gear.svg" alt="tech">
+            <h2 data-i18n="title_tech">Gestion technique</h2>
+            <p data-i18n="desc_tech">Prise en charge des travaux, relocation, renouvellement du bail et conformité légale en toute sérénité.</p>
+        </div>
+    </div>
+
+    <footer>
+        <img id="logofooter" src="./img/new_logo_1.svg" alt="logo" />
+        <div id="contact-footer-info">
+            <h3 data-i18n="nav_contact" style="color: #c62828;">Contact</h3>
+            <div class="footer-item">
+                <div class="footer-icon"><img src="./img/emotik/telephone-forward.svg" alt="tel"></div>
+                <p>+352 691 872 900</p>
+            </div>
+            <div class="footer-item">
+                <div class="footer-icon"><img src="./img/emotik/envelope-arrow-down.svg" alt="mail"></div>
+                <p>immopromot2010@gmail.com</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const translations = {
+            fr: {
+                nav_home: "Accueil", nav_acheter: "Nos Biens", nav_vendre: "Vendre", nav_invest: "Investissement", nav_gerer: "Faire Gérer", nav_promot: "Promoteur", nav_contact: "Contacts",
+                gerer_subtitle: "Gestion locative complète",
+                title_mission: "Notre mission", desc_mission: "ImmoPromot assure le paiement des loyers et la protection contre les dégradations, vous permettant de déléguer entièrement la gestion locative.",
+                title_why: "Pourquoi nous choisir ?", desc_why: "Gagnez du temps, optimisez la rentabilité de votre bien et bénéficiez de revenus locatifs réguliers sans stress.",
+                title_search: "Recherche de locataires", desc_search: "Diffusion des annonces, visites accompagnées, sélection rigoureuse des candidats et signature des baux.",
+                title_finance: "Gestion financière", desc_finance: "Encaissement des loyers, transmission des quittances et option Assurance loyers impayés.",
+                title_tech: "Gestion technique", desc_tech: "Prise en charge des travaux, relocation, renouvellement du bail et conformité légale en toute sérénité."
+            },
+            de: {
+                nav_home: "Startseite", nav_acheter: "Kaufen / Mieten", nav_vendre: "Verkaufen", nav_invest: "Investition", nav_gerer: "Verwalten lassen", nav_promot: "Bauträger", nav_contact: "Kontakt",
+                gerer_subtitle: "Vollständige Mietverwaltung",
+                title_mission: "Unsere Mission", desc_mission: "ImmoPromot stellt die Mietzahlungen und den Schutz vor Schäden sicher, sodass Sie die Mietverwaltung vollständig delegieren können.",
+                title_why: "Warum uns wählen?", desc_why: "Sparen Sie Zeit, optimieren Sie die Rentabilität Ihrer Immobilie und genießen Sie regelmäßige Mieteinnahmen ohne Stress.",
+                title_search: "Mietersuche", desc_search: "Veröffentlichung von Anzeigen, begleitete Besichtigungen, strenge Mieterauswahl und Mietvertragsunterzeichnung.",
+                title_finance: "Finanzverwaltung", desc_finance: "Mieteinzug, Übermittlung von Quittungen und Option auf Mietausfallversicherung.",
+                title_tech: "Technische Verwaltung", desc_tech: "Abwicklung von Reparaturen, Neuvermietung, Vertragsverlängerungen und rechtliche Konformität."
+            },
+            en: {
+                nav_home: "Home", nav_acheter: "Buy / Rent", nav_vendre: "Sell", nav_invest: "Investment", nav_gerer: "Management", nav_promot: "Developer", nav_contact: "Contact",
+                gerer_subtitle: "Full rental management",
+                title_mission: "Our Mission", desc_mission: "ImmoPromot ensures rent payments and protection against damage, allowing you to fully delegate property management.",
+                title_why: "Why Choose Us?", desc_why: "Save time, optimize your property's profitability, and enjoy regular rental income without stress.",
+                title_search: "Tenant Search", desc_search: "Ad distribution, guided viewings, rigorous tenant selection, and lease signing.",
+                title_finance: "Financial Management", desc_finance: "Rent collection, receipt delivery, and rent guarantee insurance options.",
+                title_tech: "Technical Management", desc_tech: "Handling repairs, re-letting, lease renewals, and legal compliance with peace of mind."
+            }
+        };
+
+        window.changeLanguage = function(lang) {
+            localStorage.setItem('selectedLanguage', lang);
+            applyLanguage();
+        }
+
+        function applyLanguage() {
+            const lang = localStorage.getItem('selectedLanguage') || 'fr';
+            
+            // OPTIMIERUNG: Setzt das globale HTML lang-Attribut passend um
+            document.documentElement.lang = lang;
+
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.toggle('active', btn.id === `lang-${lang}`));
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) el.textContent = translations[lang][key];
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', applyLanguage);
+
+        // Hamburger Menu Toggle mit Icon-Animation
+        const hamburger = document.getElementById("hamburger");
+        const nav = document.getElementById("navmenu");
+        
+        hamburger.addEventListener("click", () => {
+            hamburger.classList.toggle("active");
+            nav.classList.toggle("active");
+        });
+
+        // Schließt das Menü (und setzt das Icon zurück), wenn ein Nav-Link geklickt wird
+        document.querySelectorAll("nav#navmenu a").forEach(link => {
+            link.addEventListener("click", () => {
+                hamburger.classList.remove("active");
+                nav.classList.remove("active");
+            });
+        });
+    </script>
+</body>
+
+</html>

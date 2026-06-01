@@ -1,0 +1,25 @@
+<svg width="500" height="500" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <rect width="500" height="500" fill="#c62828"></rect>
+  
+  <!-- Kreis -->
+  <circle cx="250" cy="180" r="90" stroke="white" stroke-width="6" fill="none"></circle>
+  
+  <!-- Gebäude Icon -->
+  <rect x="230" y="120" width="40" height="120" rx="8" fill="white"></rect>
+  <g fill="#c62828">
+    <rect x="240" y="130" width="20" height="5"></rect>
+    <rect x="240" y="145" width="20" height="5"></rect>
+    <rect x="240" y="160" width="20" height="5"></rect>
+    <rect x="240" y="175" width="20" height="5"></rect>
+    <rect x="240" y="190" width="20" height="5"></rect>
+    <rect x="240" y="205" width="20" height="5"></rect>
+  </g>
+
+  <!-- Text -->
+  <text x="250" y="340" font-size="36" text-anchor="middle" fill="white" font-family="Poppins, Arial" font-weight="600">
+    IMMOPROMOT
+  </text>
+  <text x="250" y="380" font-size="16" text-anchor="middle" fill="white" letter-spacing="3">
+    REAL ESTATE
+  </text>
+</svg>

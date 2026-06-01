@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - ImmoPromot</title>
+    <link rel="icon" type="image/x-icon" href="../img/favicon.ico">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        /* Header / Navbar */
+        header {
+            background: white;
+            padding: 15px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header h2 {
+            margin: 0;
+            font-size: 1.3rem;
+            color: #c62828;
+        }
+
+        .btn-add {
+            background: #c62828;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .btn-add:hover {
+            background: #b71c1c;
+            box-shadow: 0 4px 12px rgba(198, 40, 40, 0.2);
+        }
+
+        /* Main Container */
+        .container {
+            padding: 40px 8%;
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+        }
+
+        /* Property Card */
+        .property-card {
+            background: white;
+            padding: 20px 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: 0.3s;
+        }
+
+        .property-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .info h3 {
+            margin: 0 0 8px 0;
+            font-size: 1.1rem;
+            color: #222;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Matcht das 'Aktiv' aus deinem vorherigen Formular */
+        .status-aktiv, .status-Aktiv {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        /* Matcht das 'Inaktiv' oder 'Verkauft' */
+        .status-inaktiv, .status-Inaktiv, .status-verkauft, .status-Verkauft {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        /* Buttons */
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 8px 18px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .btn-status {
+            background: #f0f0f0;
+            color: #444;
+        }
+
+        .btn-status:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-delete {
+            background: #fff0f0;
+            color: #d32f2f;
+        }
+
+        .btn-delete:hover {
+            background: #d32f2f;
+            color: white;
+        }
+
+        #propertyList {
+            min-height: 200px;
+        }
+
+        .loading {
+            text-align: center;
+            color: #888;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .property-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h2>ImmoPromot Admin</h2>
+        <a href="ajouter.html" class="btn-add">+ Ajouter un bien</a>
+    </header>
+
+    <div class="container">
+        <h1>Gestion des propriétés</h1>
+        <div id="propertyList" class="loading">Chargement des données...</div>
+    </div>
+
+    <script>
+        // Einheitliche Verbindung über das standardmäßige CDN-Objekt
+        const supabaseUrl = 'https://tcljsecaawgczfguujsi.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjbGpzZWNhYXdnY3pmZ3V1anNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMTAwMTgsImV4cCI6MjA4ODg4NjAxOH0.sO-iKn8hg1PKdAZnf1ez6dtASYH0PKId4Zx5OmGfHI8';
+
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function loadProperties() {
+            const list = document.getElementById('propertyList');
+
+            const { data, error } = await supabase
+                .from('immoPromot')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                list.innerHTML = `<p style="color:red">Erreur lors du chargement : ${error.message}</p>`;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                list.innerHTML = `<p class="loading">Aucun bien trouvé. Commencez par en ajouter un !</p>`;
+                return;
+            }
+
+            list.className = ""; // Lade-Klasse entfernen
+            list.innerHTML = data.map(p => {
+                const currentStatus = p.status || 'Aktiv';
+                // Erkennt sowohl 'Inaktiv' als auch das alte 'verkauft' als inaktiven Status
+                const isInactive = currentStatus.toLowerCase() === 'inaktiv' || currentStatus.toLowerCase() === 'verkauft';
+
+                return `
+                <div class="property-card">
+                    <div class="info">
+                        <h3>${p.title || 'Sans titre'}</h3>
+                        <span class="status-badge status-${currentStatus}">
+                            ${isInactive ? 'Inactif / Vendu' : 'Actif'}
+                        </span>
+                        <small style="color:#888; margin-left:10px;">${p.ort || ''}</small>
+                    </div>
+                    <div class="actions">
+                        <button class="btn-status" onclick="changeStatus('${p.id}', '${isInactive ? 'Aktiv' : 'Inaktiv'}')">
+                            ${isInactive ? 'Réactiver' : 'Désactiver'}
+                        </button>
+                        <button class="btn-delete" onclick="deleteProp('${p.id}')">
+                            Supprimer
+                        </button>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        // Global machen, damit onclick-Attribute im HTML die Funktionen erreichen
+        window.changeStatus = async (id, newStatus) => {
+            const { error } = await supabase.from('immoPromot').update({ status: newStatus }).eq('id', id);
+            if (error) alert("Erreur: " + error.message);
+            loadProperties();
+        };
+
+        window.deleteProp = async (id) => {
+            if (confirm('Voulez-vous vraiment supprimer cette propriété ? Cette action est irréversible.')) {
+                const { error } = await supabase.from('immoPromot').delete().eq('id', id);
+                if (error) alert("Erreur: " + error.message);
+                loadProperties();
+            }
+        };
+
+        // Initialer Start beim Seitenaufruf
+        loadProperties();
+    </script>
+</body>
+
+</html>

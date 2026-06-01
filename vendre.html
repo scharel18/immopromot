@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="format-detection" content="telephone=no">
+    <title>Vendre - ImmoPromot</title>
+    <link rel="icon" type="image/x-icon" href="./img/favicon.ico">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+        /* Style de base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+
+        body,
+        html {
+            width: 100%;
+            background: #fff;
+            color: #333;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 8%;
+            background: white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        #headerlogo {
+            height: 60px;
+        }
+
+        nav#navmenu ul {
+            display: flex;
+            list-style: none;
+            gap: 40px;
+        }
+
+        nav#navmenu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            font-size: 17px;
+            letter-spacing: 0.5px;
+            position: relative;
+            transition: 0.3s;
+        }
+
+        nav#navmenu a::after {
+            content: "";
+            position: absolute;
+            width: 0%;
+            height: 2px;
+            background: #c62828;
+            left: 0;
+            bottom: -5px;
+            transition: 0.3s;
+        }
+
+        nav#navmenu a:hover::after,
+        nav#navmenu .active::after {
+            width: 100%;
+        }
+
+        nav#navmenu a:hover,
+        nav#navmenu .active {
+            color: #c62828;
+        }
+
+        /* Sprach-Switcher Styling */
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .lang-switcher {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .lang-btn {
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: #ccc;
+            transition: 0.3s;
+            padding: 0 5px;
+            font-weight: 600;
+        }
+
+        .lang-btn.active {
+            color: #c62828;
+        }
+
+        .lang-divider {
+            color: #ccc;
+            font-weight: 300;
+        }
+
+        /* Hamburger & Mobile Menu */
+        #hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+            z-index: 1100;
+        }
+
+        #hamburger span {
+            width: 28px;
+            height: 3px;
+            background: #c62828;
+            border-radius: 2px;
+            transition: 0.4s;
+        }
+
+        #hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        #hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        #hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.3s;
+            z-index: 900;
+        }
+
+        #overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        @media (max-width: 900px) {
+            #hamburger {
+                display: flex;
+            }
+
+            nav#navmenu {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: white;
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.4s ease;
+                z-index: 1000;
+            }
+
+            nav#navmenu.active {
+                max-height: 600px;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            }
+
+            nav#navmenu ul {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px 0;
+                gap: 20px;
+            }
+        }
+
+        /* Hero Background */
+        #Background {
+            height: 40vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+                url("https://images.unsplash.com/photo-1560184897-ae75f418493e") no-repeat center/cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+        }
+
+        #Background h1 {
+            font-size: 50px;
+            letter-spacing: 3px;
+        }
+
+        /* Main Content */
+        main {
+            padding: 60px 8%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1.main-title {
+            text-align: center;
+            margin-bottom: 50px;
+            font-size: 2.2rem;
+            color: #333;
+        }
+
+        .invest-blocks {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            justify-items: center;
+        }
+
+        .invest-block {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            text-align: center;
+            width: 100%;
+        }
+
+        .invest-block:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .invest-block h2 {
+            margin-bottom: 15px;
+            color: #c62828;
+            font-size: 1.3rem;
+        }
+
+        .invest-block p {
+            line-height: 1.5;
+            color: #555;
+        }
+
+        .invest-block img {
+            width: 50px;
+            height: 50px;
+            display: block;
+            margin: 0 auto 15px;
+        }
+
+        /* Button */
+        .contact-button-container {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .contact-button {
+            background: #c62828;
+            color: white;
+            text-decoration: none;
+            padding: 15px 35px;
+            border-radius: 30px;
+            font-weight: 500;
+            transition: 0.3s;
+            display: inline-block;
+        }
+
+        .contact-button:hover {
+            background: #8d2b2b;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Footer */
+        footer {
+            background: #111;
+            color: white;
+            padding: 40px 8%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 4px solid #c62828;
+        }
+
+        #logofooter {
+            max-width: 150px;
+        }
+
+        #contact-footer-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .footer-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .footer-item p {
+            color: white !important;
+            margin: 0;
+        }
+
+        .footer-icon {
+            width: 35px;
+            height: 35px;
+            background: #c62828;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .footer-icon img {
+            width: 18px;
+        }
+
+        @media(max-width:900px) {
+            #Background h1 {
+                font-size: 35px;
+            }
+
+            footer {
+                flex-direction: column;
+                text-align: center;
+                gap: 30px;
+            }
+
+            #contact-footer-info {
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <img id="headerlogo" src="./img/new_logo_2.svg" alt="logo" />
+        <nav id="navmenu">
+            <ul>
+                <li><a href="index.html" data-i18n="nav_home">Accueil</a></li>
+                <li><a href="acheter_ou_louer.html" data-i18n="nav_acheter">Nos Biens</a></li>
+                <li><a href="vendre.html" class="active" data-i18n="nav_vendre">Vendre</a></li>
+                <li><a href="investissement.html" data-i18n="nav_invest">Investissement</a></li>
+                <li><a href="faire_gerer.html" data-i18n="nav_gerer">Faire Gérer</a></li>
+                <li><a href="promoteur.html" data-i18n="nav_promot">Promoteur</a></li>
+                <li><a href="contacts.html" data-i18n="nav_contact">Contacts</a></li>
+            </ul>
+        </nav>
+
+        <div class="header-controls">
+            <div class="lang-switcher">
+                <button onclick="changeLanguage('fr')" id="lang-fr" class="lang-btn">FR</button>
+                <span class="lang-divider">|</span>
+                <button onclick="changeLanguage('de')" id="lang-de" class="lang-btn">DE</button>
+                <span class="lang-divider">|</span>
+                <button onclick="changeLanguage('en')" id="lang-en" class="lang-btn">EN</button>
+            </div>
+            <div id="hamburger"><span></span><span></span><span></span></div>
+        </div>
+        <div id="overlay"></div>
+    </header>
+
+    <div id="Background">
+        <h1 data-i18n="vendre_hero_title">Vendre votre bien</h1>
+        <h2 data-i18n="vendre_hero_sub">Estimation rapide & accompagnement complet</h2>
+    </div>
+
+    <main>
+        <h1 class="main-title" data-i18n="vendre_main_title">Pourquoi choisir ImmoPromot?</h1>
+
+        <div class="invest-blocks">
+            <div class="invest-block">
+                <img src="./img/emotik/vendre/stopwatch.svg" alt="timer">
+                <h2 data-i18n="vendre_block1_t">Estimation rapide</h2>
+                <p data-i18n="vendre_block1_p">Obtenez une estimation gratuite et précise de votre bien sous 24 h.</p>
+            </div>
+
+            <div class="invest-block">
+                <img src="./img/emotik/vendre/house-up.svg" alt="house">
+                <h2 data-i18n="vendre_block2_t">Présentation attractive</h2>
+                <p data-i18n="vendre_block2_p">'Home staging' et mise en valeur professionnelle pour susciter le coup de cœur.</p>
+            </div>
+
+            <div class="invest-block">
+                <img src="./img/emotik/vendre/card-checklist.svg" alt="marketing">
+                <h2 data-i18n="vendre_block3_t">Plan marketing complet</h2>
+                <p data-i18n="vendre_block3_p">Diffusion multi-supports et communication ciblée auprès d'un large réseau d'acquéreurs.</p>
+            </div>
+
+            <div class="invest-block">
+                <img src="./img/emotik/vendre/person-badge.svg" alt="follow-up">
+                <h2 data-i18n="vendre_block4_t">Suivi de la vente</h2>
+                <p data-i18n="vendre_block4_p">Gestion des visites, sélection des dossiers et accompagnement jusqu'à la signature finale.</p>
+            </div>
+
+            <div class="invest-block">
+                <img src="./img/emotik/vendre/file-earmark-lock.svg" alt="security">
+                <h2 data-i18n="vendre_block5_t">Sécurité & exclusivité</h2>
+                <p data-i18n="vendre_block5_p">Avec le mandat exclusif ImmoPromot, vendez au meilleur prix en toute sérénité.</p>
+            </div>
+        </div>
+
+        <div class="contact-button-container">
+            <a href="contacts.html" class="contact-button" data-i18n="btn_contact_us">Contactez-nous</a>
+        </div>
+    </main>
+
+    <footer>
+        <img id="logofooter" src="./img/new_logo_1.svg" alt="logo" />
+        <h2 id="titlefooter">ImmoPromot</h2>
+        <div id="contact-footer-info">
+            <h3 style="color:#c62828; margin-bottom:5px;" data-i18n="footer_contact_title">Contact</h3>
+            <div class="footer-item">
+                <div class="footer-icon"><img src="./img/emotik/telephone-forward.svg" alt="tel"></div>
+                <p>+352 691 872 900</p>
+            </div>
+            <div class="footer-item">
+                <div class="footer-icon"><img src="./img/emotik/envelope-arrow-down.svg" alt="mail"></div>
+                <p>immopromot2010@gmail.com</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const hamburger = document.getElementById("hamburger");
+        const nav = document.getElementById("navmenu");
+        const overlay = document.getElementById("overlay");
+
+        hamburger.addEventListener("click", () => {
+            hamburger.classList.toggle("active");
+            nav.classList.toggle("active");
+            overlay.classList.toggle("active");
+        });
+
+        overlay.addEventListener("click", () => {
+            hamburger.classList.remove("active");
+            nav.classList.remove("active");
+            overlay.classList.remove("active");
+        });
+
+        const translations = {
+            fr: {
+                nav_home: "Accueil",
+                nav_acheter: "Acheter ou Louer",
+                nav_vendre: "Vendre",
+                nav_invest: "Investissement",
+                nav_gerer: "Faire Gérer",
+                nav_promot: "Promoteur",
+                nav_contact: "Contacts",
+                vendre_hero_title: "Vendre votre bien",
+                vendre_hero_sub: "Estimation rapide & accompagnement complet",
+                vendre_main_title: "Pourquoi choisir ImmoPromot?",
+                vendre_block1_t: "Estimation rapide",
+                vendre_block1_p: "Obtenez une estimation gratuite et précise de votre bien sous 24 h.",
+                vendre_block2_t: "Présentation attractive",
+                vendre_block2_p: "'Home staging' et mise en valeur professionnelle pour susciter le coup de cœur.",
+                vendre_block3_t: "Plan marketing complet",
+                vendre_block3_p: "Diffusion multi-supports et communication ciblée auprès d'un large réseau d'acquéreurs.",
+                vendre_block4_t: "Suivi de la vente",
+                vendre_block4_p: "Gestion des visites, sélection des dossiers et accompagnement jusqu'à la signature finale.",
+                vendre_block5_t: "Sécurité & exclusivité",
+                vendre_block5_p: "Avec le mandat exclusif ImmoPromot, vendez au meilleur prix en toute sérénité.",
+                btn_contact_us: "Contactez-nous",
+                footer_contact_title: "Contact"
+            },
+            de: {
+                nav_home: "Startseite",
+                nav_acheter: "Kaufen oder Mieten",
+                nav_vendre: "Verkaufen",
+                nav_invest: "Investition",
+                nav_gerer: "Verwalten lassen",
+                nav_promot: "Bauträger",
+                nav_contact: "Kontakt",
+                vendre_hero_title: "Ihre Immobilie verkaufen",
+                vendre_hero_sub: "Schnelle Bewertung & umfassende Begleitung",
+                vendre_main_title: "Warum ImmoPromot wählen?",
+                vendre_block1_t: "Schnelle Bewertung",
+                vendre_block1_p: "Erhalten Sie innerhalb von 24 Stunden eine kostenlose und präzise Bewertung Ihrer Immobilie.",
+                vendre_block2_t: "Attraktive Präsentation",
+                vendre_block2_p: "Professionelles 'Home Staging' und Aufwertung, um Begeisterung zu wecken.",
+                vendre_block3_t: "Kompletter Marketingplan",
+                vendre_block3_p: "Multi-Support-Verbreitung und gezielte Kommunikation an ein großes Netzwerk von Käufern.",
+                vendre_block4_t: "Verkaufsbegleitung",
+                vendre_block4_p: "Besichtigungsmanagement, Vorauswahl der Interessenten und Begleitung bis zum Notartermin.",
+                vendre_block5_t: "Sicherheit & Exklusivität",
+                vendre_block5_p: "Mit dem Exklusivmandat von ImmoPromot verkaufen Sie zum besten Preis und völlig sorgenfrei.",
+                btn_contact_us: "Kontaktieren Sie uns",
+                footer_contact_title: "Kontakt"
+            },
+            en: {
+                nav_home: "Home",
+                nav_acheter: "Buy or Rent",
+                nav_vendre: "Sell",
+                nav_invest: "Investment",
+                nav_gerer: "Management",
+                nav_promot: "Developer",
+                nav_contact: "Contact",
+                vendre_hero_title: "Sell your property",
+                vendre_hero_sub: "Fast valuation & full support",
+                vendre_main_title: "Why choose ImmoPromot?",
+                vendre_block1_t: "Fast Valuation",
+                vendre_block1_p: "Get a free and accurate valuation of your property within 24 hours.",
+                vendre_block2_t: "Attractive Presentation",
+                vendre_block2_p: "Professional home staging and enhancement to create a 'wow' effect.",
+                vendre_block3_t: "Full Marketing Plan",
+                vendre_block3_p: "Multi-channel distribution and targeted communication to a wide network of buyers.",
+                vendre_block4_t: "Sales Follow-up",
+                vendre_block4_p: "Visit management, applicant screening, and support until the final signature.",
+                vendre_block5_t: "Security & Exclusivity",
+                vendre_block5_p: "With an exclusive ImmoPromot mandate, sell at the best price with total peace of mind.",
+                btn_contact_us: "Contact Us",
+                footer_contact_title: "Contact"
+            }
+        };
+
+        function changeLanguage(lang) {
+            localStorage.setItem('selectedLanguage', lang);
+            applyLanguage();
+        }
+
+        function applyLanguage() {
+            const lang = localStorage.getItem('selectedLanguage') || 'fr';
+            
+            // Sync root language attribute for browser engine/SEO validation
+            document.documentElement.lang = lang;
+
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.id === `lang-${lang}`);
+            });
+            
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', applyLanguage);
+    </script>
+</body>
+
+</html>

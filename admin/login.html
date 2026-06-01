@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion Admin</title>
+    <link rel="icon" type="image/x-icon" href="../img/favicon.ico">
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            width: 350px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        input:focus {
+            border-color: #c62828;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            background: #c62828;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: background 0.2s, opacity 0.2s;
+        }
+
+        button:hover {
+            background: #a52222;
+        }
+
+        button:disabled {
+            background: #999;
+            cursor: not-allowed;
+        }
+        
+        #error {
+            color: #c62828;
+            margin-top: 15px;
+            font-size: 14px;
+            font-weight: bold;
+            min-height: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-box">
+        <h2>Connexion</h2>
+        <form id="loginForm">
+            <input type="email" id="email" placeholder="Email" required autocomplete="username">
+            <input type="password" id="password" placeholder="Mot de passe" required autocomplete="current-password">
+            <button type="submit" id="loginBtn">Se connecter</button>
+        </form>
+        <div id="error"></div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://tcljsecaawgczfguujsi.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjbGpzZWNhYXdnY3pmZ3V1anNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMTAwMTgsImV4cCI6MjA4ODg4NjAxOH0.sO-iKn8hg1PKdAZnf1ez6dtASYH0PKId4Zx5OmGfHI8';
+
+// LÖSUNG: Wir nennen die Variable 'supabaseClient' statt 'supabase', um den Browser-Fehler zu vermeiden
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+const form = document.getElementById("loginForm");
+const loginBtn = document.getElementById("loginBtn");
+const errorDiv = document.getElementById("error");
+
+form.addEventListener("submit", async (e) => {
+    e.preventDefault(); // Stoppt den automatischen Seiten-Refresh sofort verlässlich
+    
+    // Fehlermeldung vorher leeren & Button animieren
+    errorDiv.innerText = ""; 
+    loginBtn.disabled = true;
+    loginBtn.innerText = "Connexion en cours...";
+    
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    try {
+        // Wir nutzen hier jetzt die umbenannte Variable 'supabaseClient'
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+        if (error) {
+            // Fehlermeldungen übersetzen/schöner machen
+            if (error.message.includes("Invalid login credentials")) {
+                errorDiv.innerText = "Email ou mot de passe incorrect.";
+            } else {
+                errorDiv.innerText = "Erreur: " + error.message;
+            }
+            
+            // Button wieder freigeben
+            loginBtn.disabled = false;
+            loginBtn.innerText = "Se connecter";
+        } else {
+            // Token im LocalStorage sichern
+            if (data.session) {
+                localStorage.setItem('supabase.auth.token', JSON.stringify(data.session));
+            }
+
+            loginBtn.innerText = "Succès !";
+            
+            // Weiterleitung zum Dashboard
+            window.location.replace("dashboard.html");
+        }
+    } catch (err) {
+        errorDiv.innerText = "Une erreur est survenue lors de la connexion.";
+        loginBtn.disabled = false;
+        loginBtn.innerText = "Se connecter";
+        console.error(err);
+    }
+});
+    </script>
+</body>
+
+</html>
