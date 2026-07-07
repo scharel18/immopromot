@@ -342,7 +342,12 @@
                     <textarea id="edit-desc-en" rows="3"></textarea>
                 </div>
             </div>
-
+<label>Bilder verwalten</label>
+<div id="edit-image-list" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+    <!-- Hier werden die Vorschaubilder per JS eingefügt -->
+</div>
+<input type="file" id="edit-images" accept="image/*" multiple>
+<small style="color: #888;">Neue Bilder auswählen (alte bleiben bestehen, sofern nicht gelöscht).</small>
             <div class="modal-actions">
                 <button class="btn-cancel" onclick="closeModal()">Annuler</button>
                 <button class="btn-save" onclick="saveEdit()">Enregistrer les modifications</button>
