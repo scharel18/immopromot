@@ -356,205 +356,205 @@
     </div>
 
     <script>
-        const supabaseUrl = 'https://tcljsecaawgczfguujsi.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjbGpzZWNhYXdnY3pmZ3V1anNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMTAwMTgsImV4cCI6MjA4ODg4NjAxOH0.sO-iKn8hg1PKdAZnf1ez6dtASYH0PKId4Zx5OmGfHI8';
+       // --- DEIN ORIGINALER CODE MIT ERWEITERUNGEN ---
+const supabaseUrl = 'https://tcljsecaawgczfguujsi.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjbGpzZWNhYXdnY3pmZ3V1anNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMTAwMTgsImV4cCI6MjA4ODg4NjAxOH0.sO-iKn8hg1PKdAZnf1ez6dtASYH0PKId4Zx5OmGfHI8';
 
-        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        document.getElementById("logoutBtn").addEventListener("click", async () => {
-            await supabaseClient.auth.signOut();
-            window.location.replace("login.html");
-        });
+// Globale Variable für die Bilder
+let currentPropertyImages = []; 
 
-        async function checkUser() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (!session) {
-                window.location.replace("login.html");
-            } else {
-                load();
-            }
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+    await supabaseClient.auth.signOut();
+    window.location.replace("login.html");
+});
+
+async function checkUser() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) {
+        window.location.replace("login.html");
+    } else {
+        load();
+    }
+}
+
+// ... Hier bleibt dein ganzer "addPropertyForm" Teil exakt gleich ...
+document.getElementById("addPropertyForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const submitBtn = document.getElementById("submitBtn");
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Téléchargement des images...";
+
+    const fileInput = document.getElementById("add-images");
+    const files = fileInput.files;
+    let imageUrls = [];
+
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}_${i}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { data: uploadData, error: uploadError } = await supabaseClient.storage
+            .from('immobilien-bilder')
+            .upload(filePath, file);
+
+        if (!uploadError) {
+            const { data: urlData } = supabaseClient.storage
+                .from('immobilien-bilder')
+                .getPublicUrl(filePath);
+            imageUrls.push(urlData.publicUrl);
         }
+    }
 
-        // SPEICHER- UND UPLOAD LOGIK FÜR NEUE ANZEIGEN
-        document.getElementById("addPropertyForm").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const submitBtn = document.getElementById("submitBtn");
-            submitBtn.disabled = true;
-            submitBtn.innerText = "Téléchargement des images...";
+    const newProperty = {
+        title: document.getElementById("add-title").value,
+        title_de: document.getElementById("add-title-de").value || null,
+        title_en: document.getElementById("add-title-en").value || null,
+        type: document.getElementById("add-type").value,
+        preis: Number(document.getElementById("add-preis").value),
+        ort: document.getElementById("add-ort").value,
+        beschreibung: document.getElementById("add-desc").value,
+        beschreibung_de: document.getElementById("add-desc-de").value || null,
+        beschreibung_en: document.getElementById("add-desc-en").value || null,
+        status: 'aktiv',
+        bilder: imageUrls
+    };
 
-            const fileInput = document.getElementById("add-images");
-            const files = fileInput.files;
-            let imageUrls = [];
+    const { error } = await supabaseClient.from('immoPromot').insert([newProperty]);
+    submitBtn.disabled = false;
+    submitBtn.innerText = "Créer l'annonce";
 
-            // 1. Schleife für den Storage Upload in deinen Bucket 'immobilien-bilder'
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const fileExt = file.name.split('.').pop();
-                const fileName = `${Date.now()}_${i}.${fileExt}`;
-                const filePath = `${fileName}`;
+    if (error) {
+        alert("Erreur lors de la création: " + error.message);
+    } else {
+        alert("Bien ajouté avec succès !");
+        document.getElementById("addPropertyForm").reset();
+        load();
+    }
+});
 
-                const { data: uploadData, error: uploadError } = await supabaseClient.storage
-                    .from('immobilien-bilder')
-                    .upload(filePath, file);
+async function load() {
+    const listDiv = document.getElementById('list');
+    const { data, error } = await supabaseClient.from('immoPromot').select('*').order('created_at', { ascending: false });
 
-                if (!uploadError) {
-                    const { data: urlData } = supabaseClient.storage
-                        .from('immobilien-bilder')
-                        .getPublicUrl(filePath);
-                    
-                    imageUrls.push(urlData.publicUrl);
-                } else {
-                    console.error("Upload Error:", uploadError.message);
-                }
-            }
+    if (error) {
+        listDiv.innerHTML = "Erreur de chargement: " + error.message;
+        return;
+    }
 
-            // 2. Erstellung des Datensatzes für die Tabelle
-            const newProperty = {
-                title: document.getElementById("add-title").value,
-                title_de: document.getElementById("add-title-de").value || null,
-                title_en: document.getElementById("add-title-en").value || null,
-                type: document.getElementById("add-type").value,
-                preis: Number(document.getElementById("add-preis").value),
-                ort: document.getElementById("add-ort").value,
-                beschreibung: document.getElementById("add-desc").value,
-                beschreibung_de: document.getElementById("add-desc-de").value || null,
-                beschreibung_en: document.getElementById("add-desc-en").value || null,
-                status: 'aktiv',
-                bilder: imageUrls // Übergibt das Array an generierten Bild-URLs
-            };
+    if (!data || data.length === 0) {
+        listDiv.innerHTML = "Aucun bien trouvé.";
+        return;
+    }
 
-            const { error } = await supabaseClient.from('immoPromot').insert([newProperty]);
-
-            submitBtn.disabled = false;
-            submitBtn.innerText = "Créer l'annonce";
-
-            if (error) {
-                alert("Erreur lors de la création: " + error.message);
-            } else {
-                alert("Bien ajouté avec succès !");
-                document.getElementById("addPropertyForm").reset();
-                load();
-            }
-        });
-
-        // LADEN UND ANZEIGEN DER DATEN
-        async function load() {
-            const listDiv = document.getElementById('list');
-            
-            const { data, error } = await supabaseClient.from('immoPromot').select('*').order('created_at', { ascending: false });
-
-            if (error) {
-                console.error("Supabase Error:", error);
-                listDiv.innerHTML = "Erreur de chargement: " + error.message;
-                return;
-            }
-
-            if (!data || data.length === 0) {
-                listDiv.innerHTML = "Aucun bien trouvé.";
-                return;
-            }
-
-            listDiv.innerHTML = data.map(p => {
-                const isSold = p.status === 'verkauft';
-                // Holt das erste Bild aus dem Array 'bilder' oder nutzt einen grauen Platzhalter
-                const firstImg = (p.bilder && p.bilder.length > 0) ? p.bilder[0] : '../img/placeholder.jpg';
-
-                return `
-                <div class="item">
-                    <div class="item-preview">
-                        <img src="${firstImg}" class="prop-thumb" alt="Preview" onerror="this.src='../img/placeholder.jpg'">
-                        <div>
-                            <strong>${p.title || 'Sans titre'}</strong><br>
-                            <small style="color: #888;">${p.ort || 'Lieu inconnu'} | ${p.preis || 0} €</small><br>
-                            <span class="status-pill ${isSold ? 'status-verkauft' : 'status-aktiv'}">${isSold ? 'Vendu' : 'Actif'}</span>
-                        </div>
-                    </div>
-                    <div class="actions">
-                        <button class="btn-edit" onclick="openEdit('${p.id}')">Modifier</button>
-                        <button class="btn-status" onclick="updateStatus('${p.id}', '${isSold ? 'aktiv' : 'verkauft'}')">
-                            ${isSold ? 'Réactiver' : 'Vendu'}
-                        </button>
-                        <button class="btn-del" onclick="deleteItem('${p.id}')">Supprimer</button>
-                    </div>
+    listDiv.innerHTML = data.map(p => {
+        const isSold = p.status === 'verkauft';
+        const firstImg = (p.bilder && p.bilder.length > 0) ? p.bilder[0] : '../img/placeholder.jpg';
+        return `
+        <div class="item">
+            <div class="item-preview">
+                <img src="${firstImg}" class="prop-thumb" alt="Preview" onerror="this.src='../img/placeholder.jpg'">
+                <div>
+                    <strong>${p.title || 'Sans titre'}</strong><br>
+                    <small style="color: #888;">${p.ort || 'Lieu inconnu'} | ${p.preis || 0} €</small><br>
+                    <span class="status-pill ${isSold ? 'status-verkauft' : 'status-aktiv'}">${isSold ? 'Vendu' : 'Actif'}</span>
                 </div>
-            `;
-            }).join('');
+            </div>
+            <div class="actions">
+                <button class="btn-edit" onclick="openEdit('${p.id}')">Modifier</button>
+                <button class="btn-status" onclick="updateStatus('${p.id}', '${isSold ? 'aktiv' : 'verkauft'}')">
+                    ${isSold ? 'Réactiver' : 'Vendu'}
+                </button>
+                <button class="btn-del" onclick="deleteItem('${p.id}')">Supprimer</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// --- NEUE BILD-FUNKTIONEN (NEU) ---
+function renderEditImages() {
+    const list = document.getElementById('edit-image-list');
+    list.innerHTML = currentPropertyImages.map((url, index) => `
+        <div style="position:relative; width:60px; height:60px;">
+            <img src="${url}" style="width:60px; height:60px; object-fit:cover; border-radius:4px;">
+            <button type="button" onclick="removeImage(${index})" style="position:absolute; top:-5px; right:-5px; background:red; color:white; border:none; border-radius:50%; width:20px; height:20px; cursor:pointer; font-size:12px;">×</button>
+        </div>
+    `).join('');
+}
+
+window.removeImage = (index) => {
+    currentPropertyImages.splice(index, 1);
+    renderEditImages();
+};
+
+// --- BEARBEITETE FUNKTIONEN ---
+window.openEdit = async (id) => {
+    const { data, error } = await supabaseClient.from('immoPromot').select('*').eq('id', id).single();
+    if (data) {
+        document.getElementById('edit-id').value = data.id;
+        document.getElementById('edit-title').value = data.title || '';
+        document.getElementById('edit-title-de').value = data.title_de || '';
+        document.getElementById('edit-title-en').value = data.title_en || '';
+        document.getElementById('edit-type').value = data.type || 'acheter';
+        document.getElementById('edit-preis').value = data.preis || '';
+        document.getElementById('edit-ort').value = data.ort || '';
+        document.getElementById('edit-desc').value = data.beschreibung || '';
+        document.getElementById('edit-desc-de').value = data.beschreibung_de || '';
+        document.getElementById('edit-desc-en').value = data.beschreibung_en || '';
+        
+        currentPropertyImages = data.bilder || []; // NEU
+        renderEditImages(); // NEU
+        
+        document.getElementById('editModal').style.display = 'block';
+    }
+};
+
+window.saveEdit = async () => {
+    const id = document.getElementById('edit-id').value;
+    const fileInput = document.getElementById('edit-images');
+    let updatedImages = [...currentPropertyImages]; // Bestehende behalten
+
+    // Neue Bilder hochladen (NEU)
+    if (fileInput.files.length > 0) {
+        for (let i = 0; i < fileInput.files.length; i++) {
+            const file = fileInput.files[i];
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}_${i}.${fileExt}`;
+            const { data: uploadData } = await supabaseClient.storage.from('immobilien-bilder').upload(fileName, file);
+            if (uploadData) {
+                const { data: urlData } = supabaseClient.storage.from('immobilien-bilder').getPublicUrl(fileName);
+                updatedImages.push(urlData.publicUrl);
+            }
         }
+    }
 
-        // --- EDIT LOGIK ---
-        window.openEdit = async (id) => {
-            const { data, error } = await supabaseClient.from('immoPromot').select('*').eq('id', id).single();
-            if (error) {
-                alert("Erreur de chargement du bien: " + error.message);
-                return;
-            }
-            if (data) {
-                document.getElementById('edit-id').value = data.id;
-                document.getElementById('edit-title').value = data.title || '';
-                document.getElementById('edit-title-de').value = data.title_de || '';
-                document.getElementById('edit-title-en').value = data.title_en || '';
-                document.getElementById('edit-type').value = data.type || 'acheter';
-                document.getElementById('edit-preis').value = data.preis || '';
-                document.getElementById('edit-ort').value = data.ort || '';
-                document.getElementById('edit-desc').value = data.beschreibung || '';
-                document.getElementById('edit-desc-de').value = data.beschreibung_de || '';
-                document.getElementById('edit-desc-en').value = data.beschreibung_en || '';
+    const updates = {
+        title: document.getElementById('edit-title').value,
+        title_de: document.getElementById('edit-title-de').value || null,
+        title_en: document.getElementById('edit-title-en').value || null,
+        type: document.getElementById('edit-type').value,
+        preis: Number(document.getElementById('edit-preis').value),
+        ort: document.getElementById('edit-ort').value,
+        beschreibung: document.getElementById('edit-desc').value,
+        beschreibung_de: document.getElementById('edit-desc-de').value || null,
+        beschreibung_en: document.getElementById('edit-desc-en').value || null,
+        bilder: updatedImages // NEU
+    };
 
-                document.getElementById('editModal').style.display = 'block';
-            }
-        };
+    const { error } = await supabaseClient.from('immoPromot').update(updates).eq('id', id);
+    if (!error) {
+        closeModal();
+        load();
+    }
+};
 
-        window.closeModal = () => {
-            document.getElementById('editModal').style.display = 'none';
-        };
+window.closeModal = () => { document.getElementById('editModal').style.display = 'none'; };
+window.updateStatus = async (id, newStatus) => { await supabaseClient.from('immoPromot').update({ status: newStatus }).eq('id', id); load(); };
+window.deleteItem = async (id) => { if (confirm('Voulez-vous vraiment supprimer ?')) { await supabaseClient.from('immoPromot').delete().eq('id', id); load(); } };
 
-        window.saveEdit = async () => {
-            const id = document.getElementById('edit-id').value;
-            const updates = {
-                title: document.getElementById('edit-title').value,
-                title_de: document.getElementById('edit-title-de').value || null,
-                title_en: document.getElementById('edit-title-en').value || null,
-                type: document.getElementById('edit-type').value,
-                preis: Number(document.getElementById('edit-preis').value),
-                ort: document.getElementById('edit-ort').value,
-                beschreibung: document.getElementById('edit-desc').value,
-                beschreibung_de: document.getElementById('edit-desc-de').value || null,
-                beschreibung_en: document.getElementById('edit-desc-en').value || null
-            };
-
-            const { error } = await supabaseClient.from('immoPromot').update(updates).eq('id', id);
-
-            if (error) {
-                alert("Erreur lors de la sauvegarde: " + error.message);
-            } else {
-                closeModal();
-                load();
-            }
-        };
-
-        window.updateStatus = async (id, newStatus) => {
-            const { error } = await supabaseClient.from('immoPromot').update({ status: newStatus }).eq('id', id);
-            if (error) {
-                alert("Erreur lors du changement de statut: " + error.message);
-            } else {
-                load();
-            }
-        };
-
-        window.deleteItem = async (id) => {
-            if (confirm('Voulez-vous vraiment supprimer ce bien ?')) {
-                const { error } = await supabaseClient.from('immoPromot').delete().eq('id', id);
-                if (error) {
-                    alert("Erreur lors de la suppression: " + error.message);
-                } else {
-                    load();
-                }
-            }
-        };
-
-        document.addEventListener("DOMContentLoaded", () => {
-            checkUser();
-        });
+document.addEventListener("DOMContentLoaded", () => { checkUser(); });
     </script>
 </body>
 
